@@ -18,7 +18,9 @@
     "build": "turbo build",
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
-    "dev:web": "turbo -F web dev"
+    "dev:web": "turbo -F web dev",
+    "desktop:dev": "APPIMAGE_EXTRACT_AND_RUN=1 turbo -F web desktop:dev",
+    "desktop:build": "APPIMAGE_EXTRACT_AND_RUN=1 NO_STRIP=true turbo -F web desktop:build"
   },
   "dependencies": {
     "@file-organizer-app/env": "workspace:*",

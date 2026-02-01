@@ -16,6 +16,13 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "desktop:build": {
+      "dependsOn": ["^build"]
+    },
+    "desktop:dev": {
+      "cache": false,
+      "persistent": true
     }
   }
 }
