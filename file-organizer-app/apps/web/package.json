@@ -10,8 +10,8 @@
     "start": "vite",
     "check-types": "tsc --noEmit",
     "tauri": "tauri",
-    "desktop:dev": "tauri dev",
-    "desktop:build": "tauri build"
+    "desktop:dev": "APPIMAGE_EXTRACT_AND_RUN=1 tauri dev",
+    "desktop:build": "APPIMAGE_EXTRACT_AND_RUN=1 NO_STRIP=true tauri build"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
