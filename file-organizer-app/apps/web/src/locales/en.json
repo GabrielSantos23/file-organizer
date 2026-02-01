@@ -1,0 +1,321 @@
+{
+  "app": {
+    "title": "File Organizer",
+    "description": "Organize your files with artificial intelligence"
+  },
+
+  "common": {
+    "name": "Name",
+    "size": "Size",
+    "type": "Type",
+    "modified": "Modified",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "rename": "Rename",
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back",
+    "continue": "Continue",
+    "unknown": "Unknown",
+    "loading": "Loading...",
+    "appearance": "Appearance",
+    "language": "Language",
+    "notifications": "Notifications",
+    "error": "Error",
+    "filename": "Filename",
+    "destination": "Destination",
+    "status": "Status",
+    "action": "Action",
+    "suggestedName": "Suggested new name",
+    "duplicated": "Duplicated",
+    "ignoredDuplicate": "Ignored duplicate",
+    "storage": "Storage",
+    "usedTotal": "Used Total",
+    "viewAll": "View all"
+  },
+
+  "dashboard": {
+    "title": "Storage Dashboard",
+    "folders": "Folders",
+    "lastFiles": "Last Files",
+    "totalStorage": "Total Storage",
+    "totalFiles": "Total Files",
+    "categories": "Categories",
+    "sizeDistribution": "Size Distribution",
+    "topFiles": "Top 10 Largest Files",
+    "filesByCategory": "Files Count by Category",
+    "driveUsageDetail": "{{used}} of {{total}} used"
+  },
+
+  "toolbar": {
+    "openFolder": "Open Folder",
+    "organizeWithAI": "Organize with AI",
+    "duplicates": "Duplicates",
+    "rename": "Rename",
+    "analyzeDocs": "Analyze Docs",
+    "settings": "Settings",
+    "searchPlaceholder": "Search files...",
+    "semanticSearch": "AI Search",
+    "semanticPlaceholder": "Search images by content (e.g. food, mountains)...",
+    "name": "Name",
+    "modified": "Modified",
+    "size": "Size",
+    "destination": "Destination (AI)",
+    "confidence": "Confidence",
+    "filters": "Filters",
+    "uncheckAll": "Uncheck All",
+    "checkAll": "Check All"
+  },
+
+  "breadcrumb": {
+    "selectFolder": "Select a folder...",
+    "selectFolderToStart": "Select a folder to start"
+  },
+
+  "browser": {
+    "name": "Name",
+    "destination": "Destination (AI)",
+    "confidence": "Confidence",
+    "size": "Size",
+    "modified": "Modified",
+    "emptyFolder": "Empty folder",
+    "noFilesFound": "No files found",
+    "selectFolderToStart": "Select a folder to start"
+  },
+
+  "contextMenu": {
+    "openFolder": "Open Folder",
+    "rename": "Rename",
+    "copyPath": "Copy Path",
+    "delete": "Delete",
+    "deleteFolder": "Delete Folder",
+    "deleteFile": "Delete File",
+    "duplicate": "Duplicate",
+    "renameWithAI": "Rename with AI"
+  },
+
+  "dialogs": {
+    "rename": {
+      "title": "Rename",
+      "description": "Enter the new name for the {type}.",
+      "folder": "folder",
+      "file": "file",
+      "nameLabel": "Name",
+      "cancel": "Cancel",
+      "confirm": "Rename"
+    },
+    "delete": {
+      "title": "Delete",
+      "titleFolder": "Delete Folder",
+      "titleFile": "Delete File",
+      "description": "Are you sure you want to delete \"{filename}\"? This action cannot be undone.",
+      "confirmDescription": "Are you sure you want to delete this file? This action cannot be undone.",
+      "location": "Location",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "duplicateDelete": {
+      "title": "Delete Duplicate File",
+      "description": "Do you want to delete this duplicate file?",
+      "location": "Location",
+      "duplicateOf": "Duplicate of",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "renameWithAI": {
+      "title": "Rename with AI",
+      "description": "Do you want to apply the name suggestion?",
+      "currentFile": "Current file",
+      "suggestedName": "Suggested new name",
+      "cancel": "Cancel",
+      "confirm": "Rename"
+    },
+    "createFolder": {
+      "title": "Create Custom Folder",
+      "description": "Enter the name of the new folder to organize this file.",
+      "nameLabel": "Name",
+      "placeholder": "E.g.: Important Documents",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    }
+  },
+
+  "analysis": {
+    "analyzing": "Analyzing...",
+    "loadingPreview": "Loading preview...",
+    "analyzeWithAI": "Analyze with AI",
+    "filesAnalyzed": "{count} files analyzed with AI",
+    "duplicatesFound": "{count} duplicates found",
+    "imagesClassified": "{count} images classified",
+    "processing": "Processing",
+    "classifyingImages": "Classifying images"
+  },
+
+  "preview": {
+    "title": "Preview",
+    "videoUnavailable": "Video Preview Unavailable",
+    "videoDisabledReason": "Preview has been disabled to ensure app stability.",
+    "notAvailable": "Preview not available",
+    "notAvailableReason": "This file type cannot be previewed directly.",
+    "type": "Type",
+    "size": "Size",
+    "unknown": "Unknown",
+    "errorLoadingImage": "Error loading image",
+    "errorLoadingPdf": "Error loading PDF",
+    "errorLoadingAudio": "Error loading audio",
+    "audioNotSupported": "Your device does not support audio playback."
+  },
+
+  "badges": {
+    "duplicate": "Duplicate",
+    "files": "files",
+    "folders": "folders",
+    "analyzed": "analyzed",
+    "duplicates": "duplicates",
+    "renames": "renames"
+  },
+
+  "actions": {
+    "organize": "Organize",
+    "selectDestination": "Destination folder",
+    "applySmartRename": "Apply smart renaming?",
+    "selectFolder": "Select Folder",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "selectedFolder": "Selected folder",
+    "changeFolder": "Change folder",
+    "selectFolderToStart": "Select folder to start"
+  },
+
+  "complete": {
+    "title": "Organization Complete!",
+    "filesOrganized": "{count} files organized",
+    "moved": "Moved",
+    "skipped": "Skipped",
+    "failed": "Failed"
+  },
+
+  "idle": {
+    "title": "File Organizer",
+    "description": "Select a folder from the sidebar or click \"Open Folder\" to browse your files. Then click \"Analyze with AI\" to organize automatically."
+  },
+
+  "toast": {
+    "success": {
+      "fileDeleted": "File deleted successfully",
+      "fileRenamed": "File renamed successfully",
+      "folderDeleted": "Folder deleted successfully",
+      "duplicateDeleted": "Duplicate file deleted successfully",
+      "pathCopied": "Path copied to clipboard",
+      "renamingEnabled": "Renaming enabled!",
+      "duplicateCreated": "Duplicate created in list (visual only)",
+      "aiSuggestionApplied": "Name suggestion applied. Press Enter to confirm."
+    },
+    "error": {
+      "openingFolder": "Error opening folder",
+      "analysis": "Analysis error",
+      "moving": "Error moving",
+      "deleting": "Error deleting",
+      "renaming": "Error renaming",
+      "loadingPreview": "Error loading file preview",
+      "selectAtLeastOne": "Select at least one file",
+      "filePreview": "Could not preview file"
+    }
+  },
+
+  "folderTree": {
+    "drives": "DRIVES",
+    "folders": "FOLDERS"
+  },
+
+  "scanSummary": {
+    "title": "Scan Complete",
+    "images": "Images",
+    "documents": "Documents",
+    "others": "Others",
+    "distribution": "Distribution",
+    "files": "files"
+  },
+
+  "fileList": {
+    "title": "Files to Organize",
+    "selectedCount": "{selected} of {total} selected"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "generalDescription": "General preferences.",
+    "appearance": "Appearance",
+    "appearanceDescription": "Customize UI look and feel.",
+    "ai": "AI Engine",
+    "aiDescription": "Local AI engine settings.",
+    "rules": "Rules",
+    "rulesDescription": "File organization rules.",
+    "advanced": "Advanced",
+    "advancedDescription": "Advanced settings.",
+    "about": "About",
+    "aboutDescription": "Version information.",
+    "aboutTitle": "File Organizer AI",
+    "aboutVersion": "Version 0.1.0 (Beta)",
+    "aboutDeveloper": "Developed with ❤️ by Gabriel",
+    "development": "In development",
+    "save": "Save",
+    "cancel": "Cancel",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "language": "Language",
+    "selectLanguage": "Select language",
+    "theme": "Theme",
+    "selectTheme": "Select theme",
+    "autoRename": "Smart Renaming",
+    "autoRenameDescription": "Automatically suggest better names for files",
+    "autoRenameEnabled": "Auto rename enabled",
+    "autoRenameDisabled": "Auto rename disabled",
+    "aiVisionModel": "Vision Model (CLIP)",
+    "aiVisionModelDescription": "Model used to analyze images and screenshots.",
+    "aiVisionModelDefault": "ViT-B-32 (Default - Balanced)",
+    "aiVisionModelBalanced": "ViT-L-14 (More precise, slower)",
+    "aiVisionModelFast": "RN50 (Faster)",
+    "aiPythonPath": "Python Engine Path",
+    "aiPythonPathDescription": "Absolute path to the Python engine executable."
+  },
+
+  "home": {
+    "files": "files",
+    "folders": "folders",
+    "analyzeWithAI": "Analyze with AI",
+    "analyzed": "analyzed",
+    "duplicates": "duplicates",
+    "renames": "renames",
+    "back": "Back",
+    "organize": "Organize",
+    "organizeWithCount": "Organize ({{count}})",
+    "smartRenamePrompt": "Apply smart renaming?",
+    "no": "No",
+    "yes": "Yes",
+    "organizationComplete": "Organization Complete!",
+    "filesOrganized": "files organized",
+    "moved": "Moved",
+    "skipped": "Skipped",
+    "failed": "Failed",
+    "continue": "Continue",
+    "welcome": "Select a folder from the sidebar or click 'Select Folder' to browse your files. Then, click 'Analyze with AI' to organize automatically.",
+    "selectFolder": "Select Folder",
+    "movingFiles": "Moving files..."
+  },
+
+  "toasts": {
+    "openFolderError": "Error opening folder",
+    "analyzedFiles": "files analyzed with AI",
+    "duplicatesFound": "duplicates found",
+    "imagesClassified": "images classified",
+    "analysisError": "Error during analysis",
+    "selectOneFile": "Select at least one file",
+    "moveError": "Error moving files",
+    "renamingEnabled": "Smart renaming enabled!"
+  }
+}

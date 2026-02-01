@@ -1,0 +1,318 @@
+{
+  "app": {
+    "title": "Organizador de Archivos",
+    "description": "Organiza tus archivos con inteligencia artificial"
+  },
+  "common": {
+    "name": "Nombre",
+    "size": "Tamaño",
+    "type": "Tipo",
+    "modified": "Modificado",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "rename": "Renombrar",
+    "yes": "Sí",
+    "no": "No",
+    "back": "Atrás",
+    "continue": "Continuar",
+    "unknown": "Desconocido",
+    "loading": "Cargando...",
+    "appearance": "Apariencia",
+    "language": "Idioma",
+    "notifications": "Notificaciones",
+    "error": "Error",
+    "filename": "Nombre del archivo",
+    "destination": "Destino",
+    "status": "Estado",
+    "action": "Acción",
+    "suggestedName": "Nuevo nombre sugerido",
+    "duplicated": "Duplicado",
+    "ignoredDuplicate": "Duplicado ignorado",
+    "viewAll": "Ver todo",
+    "storage": "Almacenamiento",
+    "usedTotal": "Total Usado",
+    "freeSpace": "Espacio Libre",
+    "files_count": "{{count}} archivos"
+  },
+  "categories": {
+    "Imagens": "Imágenes",
+    "Vídeos": "Videos",
+    "Áudio": "Audio",
+    "Software": "Software",
+    "Código": "Código",
+    "Documentos/Logs": "Documentos/Logs",
+    "Outros": "Otros",
+    "Arquivos Compactados": "Archivos Comprimidos",
+    "Design/Vetores": "Diseño/Vectores",
+    "Fontes": "Fuentes",
+    "Bancos de Dados": "Bases de Datos",
+    "E-books": "E-books",
+    "modelos 3D": "Modelos 3D",
+    "Configurações": "Configuraciones",
+    "Planilhas": "Hojas de Cálculo",
+    "Apresentações": "Presentaciones"
+  },
+  "dashboard": {
+    "title": "Panel de Almacenamiento",
+    "folders": "Carpetas",
+    "lastFiles": "Últimos Archivos",
+    "totalStorage": "Almacenamiento Total",
+    "totalFiles": "Total de Archivos",
+    "categories": "Categorías",
+    "sizeDistribution": "Distribución por Tamaño",
+    "topFiles": "Top 10 Archivos Más Grandes",
+    "filesByCategory": "Archivos por Categoría",
+    "driveUsageDetail": "{{used}} de {{total}} usados"
+  },
+  "dialogs": {
+    "selectFolderTitle": "Seleccionar Carpeta",
+    "rename": {
+      "title": "Renombrar",
+      "description": "Ingrese el nuevo nombre para el {type}.",
+      "folder": "carpeta",
+      "file": "archivo"
+    }
+  },
+  "toolbar": {
+    "openFolder": "Abrir Carpeta",
+    "organizeWithAI": "Organizar con IA",
+    "searchPlaceholder": "Buscar archivos...",
+    "semanticSearch": "Búsqueda IA",
+    "settings": "Configuración"
+  },
+  "breadcrumb": {
+    "selectFolder": "Seleccione una carpeta...",
+    "selectFolderToStart": "Seleccione una carpeta para comenzar"
+  },
+  "browser": {
+    "name": "Nombre",
+    "destination": "Destino (IA)",
+    "confidence": "Confianza",
+    "size": "Tamaño",
+    "modified": "Modificado",
+    "emptyFolder": "Carpeta vacía",
+    "noFilesFound": "No se encontraron archivos",
+    "selectFolderToStart": "Seleccione una carpeta para comenzar"
+  },
+  "contextMenu": {
+    "openFolder": "Abrir Carpeta",
+    "rename": "Renombrar",
+    "copyPath": "Copiar Ruta",
+    "delete": "Eliminar",
+    "deleteFolder": "Eliminar Carpeta",
+    "deleteFile": "Eliminar Archivo",
+    "duplicate": "Duplicar",
+    "renameWithAI": "Renombrar con IA"
+  },
+  "dialogs": {
+    "rename": {
+      "title": "Renombrar",
+      "description": "Ingrese el nuevo nombre para el {type}.",
+      "folder": "carpeta",
+      "file": "archivo",
+      "nameLabel": "Nombre",
+      "cancel": "Cancelar",
+      "confirm": "Renombrar"
+    },
+    "delete": {
+      "title": "Eliminar",
+      "titleFolder": "Eliminar Carpeta",
+      "titleFile": "Eliminar Archivo",
+      "description": "¿Estás seguro de que deseas eliminar \"{filename}\"? Esta acción no se puede deshacer.",
+      "confirmDescription": "¿Estás seguro de que deseas eliminar este archivo? Esta acción no se puede deshacer.",
+      "location": "Ubicación",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar"
+    },
+    "duplicateDelete": {
+      "title": "Eliminar Archivo Duplicado",
+      "description": "¿Deseas eliminar este archivo duplicado?",
+      "location": "Ubicación",
+      "duplicateOf": "Duplicado de",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar"
+    },
+    "renameWithAI": {
+      "title": "Renombrar con IA",
+      "description": "¿Deseas aplicar la sugerencia de nombre?",
+      "currentFile": "Archivo actual",
+      "suggestedName": "Nuevo nombre sugerido",
+      "cancel": "Cancelar",
+      "confirm": "Renombrar"
+    },
+    "createFolder": {
+      "title": "Crear Carpeta Personalizada",
+      "description": "Ingrese el nombre de la nueva carpeta para organizar este archivo.",
+      "nameLabel": "Nombre",
+      "placeholder": "Ej: Documentos Importantes",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar"
+    }
+  },
+  "analysis": {
+    "analyzing": "Analizando...",
+    "loadingPreview": "Cargando vista previa...",
+    "analyzeWithAI": "Analizar con IA",
+    "filesAnalyzed": "{count} archivos analizados con IA",
+    "duplicatesFound": "{count} duplicados encontrados",
+    "imagesClassified": "{count} imágenes clasificadas",
+    "processing": "Procesando",
+    "classifyingImages": "Clasificando imágenes"
+  },
+  "preview": {
+    "title": "Vista previa",
+    "videoUnavailable": "Vista previa de video no disponible",
+    "videoDisabledReason": "La vista previa se ha desactivado para garantizar la estabilidad de la app.",
+    "notAvailable": "Vista previa no disponible",
+    "notAvailableReason": "Este tipo de archivo no se puede previsualizar directamente.",
+    "type": "Tipo",
+    "size": "Tamaño",
+    "unknown": "Desconocido",
+    "errorLoadingImage": "Error al cargar la imagen",
+    "errorLoadingPdf": "Error al cargar el PDF",
+    "errorLoadingAudio": "Error al cargar el audio",
+    "audioNotSupported": "Tu dispositivo no admite la reproducción de audio."
+  },
+  "badges": {
+    "duplicate": "Duplicado",
+    "files": "archivos",
+    "folders": "carpetas",
+    "analyzed": "analizados",
+    "duplicates": "duplicados",
+    "renames": "renombrados"
+  },
+  "actions": {
+    "organize": "Organizar",
+    "selectDestination": "Carpeta de destino",
+    "applySmartRename": "¿Aplicar renombrado inteligente?",
+    "selectFolder": "Seleccionar Carpeta",
+    "selectAll": "Seleccionar Todo",
+    "deselectAll": "Desmarcar Todo",
+    "selectedFolder": "Carpeta seleccionada",
+    "changeFolder": "Cambiar carpeta",
+    "selectFolderToStart": "Seleccione una carpeta para comenzar"
+  },
+  "complete": {
+    "title": "¡Organización Completada!",
+    "filesOrganized": "{count} archivos organizados",
+    "moved": "Movidos",
+    "skipped": "Omitidos",
+    "failed": "Fallidos"
+  },
+  "idle": {
+    "title": "Organizador de Archivos",
+    "description": "Seleccione una carpeta de la barra lateral o haga clic en \"Abrir Carpeta\" para explorar sus archivos. Luego haga clic en \"Analizar con IA\" para organizar automáticamente."
+  },
+  "toast": {
+    "success": {
+      "fileDeleted": "Archivo eliminado con éxito",
+      "fileRenamed": "Archivo renombrado con éxito",
+      "folderDeleted": "Carpeta eliminada con éxito",
+      "duplicateDeleted": "Archivo duplicado eliminado con éxito",
+      "pathCopied": "Ruta copiada al portapapeles",
+      "renamingEnabled": "¡Renombrado activado!",
+      "duplicateCreated": "Duplicado creado en la lista (solo visual)",
+      "aiSuggestionApplied": "Sugerencia aplicada. Presione Enter para confirmar."
+    },
+    "error": {
+      "openingFolder": "Error al abrir la carpeta",
+      "analysis": "Error de análisis",
+      "moving": "Error al mover",
+      "deleting": "Error al eliminar",
+      "renaming": "Error al renombrar",
+      "loadingPreview": "Error al cargar la vista previa",
+      "selectAtLeastOne": "Seleccione al menos un archivo",
+      "filePreview": "No se pudo previsualizar el archivo"
+    }
+  },
+  "folderTree": {
+    "drives": "UNIDADES",
+    "folders": "CARPETAS"
+  },
+  "scanSummary": {
+    "title": "Escaneo Completado",
+    "images": "Imágenes",
+    "documents": "Documentos",
+    "others": "Otros",
+    "distribution": "Distribución",
+    "files": "archivos"
+  },
+  "fileList": {
+    "title": "Archivos para Organizar",
+    "selectedCount": "{selected} de {total} seleccionados"
+  },
+  "settings": {
+    "title": "Configuración",
+    "general": "General",
+    "generalDescription": "Preferencias generales.",
+    "appearance": "Apariencia",
+    "appearanceDescription": "Personalizar aspecto de la interfaz.",
+    "ai": "Motor de IA",
+    "aiDescription": "Configuración del motor de IA local.",
+    "rules": "Reglas",
+    "rulesDescription": "Reglas de organización de archivos.",
+    "advanced": "Avanzado",
+    "advancedDescription": "Configuración avanzada.",
+    "about": "Acerca de",
+    "aboutDescription": "Información de la versión.",
+    "aboutTitle": "File Organizer AI",
+    "aboutVersion": "Versión 0.1.0 (Beta)",
+    "aboutDeveloper": "Desarrollado con ❤️ por Gabriel",
+    "development": "En desarrollo",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "language": "Idioma",
+    "selectLanguage": "Seleccionar idioma",
+    "theme": "Tema",
+    "selectTheme": "Seleccionar tema",
+    "autoRename": "Renombrado Inteligente",
+    "autoRenameDescription": "Sugerir automáticamente mejores nombres para los archivos",
+    "autoRenameEnabled": "Renombrado automático activado",
+    "autoRenameDisabled": "Renombrado automático desactivado",
+    "aiVisionModel": "Modelo de Visión (CLIP)",
+    "aiVisionModelDescription": "Modelo utilizado para analizar imágenes y capturas de pantalla.",
+    "aiVisionModelDefault": "ViT-B-32 (Predeterminado - Equilibrado)",
+    "aiVisionModelBalanced": "ViT-L-14 (Más preciso, lento)",
+    "aiVisionModelFast": "RN50 (Más rápido)",
+    "aiPythonPath": "Ruta de Python",
+    "aiPythonPathDescription": "Ruta absoluta al ejecutable del motor Python."
+  },
+  "home": {
+    "files": "archivos",
+    "folders": "carpetas",
+    "analyzeWithAI": "Analizar con IA",
+    "analyzed": "analizados",
+    "duplicates": "duplicados",
+    "renames": "renombrados",
+    "back": "Volver",
+    "organize": "Organizar",
+    "organizeWithCount": "Organizar ({{count}})",
+    "smartRenamePrompt": "¿Aplicar renombrado inteligente?",
+    "no": "No",
+    "yes": "Sí",
+    "organizationComplete": "¡Organización Completada!",
+    "filesOrganized": "archivos organizados",
+    "moved": "Movidos",
+    "skipped": "Omitidos",
+    "failed": "Fallidos",
+    "continue": "Continuar",
+    "welcome": "Seleccione una carpeta de la barra lateral o haga clic en 'Seleccionar Carpeta' para explorar. Luego, haga clic en 'Analizar con IA' para organizar automáticamente.",
+    "selectFolder": "Seleccionar Carpeta",
+    "movingFiles": "Moviendo archivos..."
+  },
+  "toasts": {
+    "openFolderError": "Error al abrir la carpeta",
+    "analyzedFiles": "archivos analizados con IA",
+    "duplicatesFound": "duplicados encontrados",
+    "imagesClassified": "imágenes clasificadas",
+    "analysisError": "Error durante el análisis",
+    "selectOneFile": "Seleccione al menos un archivo",
+    "moveError": "Error al mover archivos",
+    "renamingEnabled": "¡Renombrado inteligente activado!"
+  }
+}

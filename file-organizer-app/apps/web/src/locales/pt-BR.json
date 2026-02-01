@@ -1,0 +1,300 @@
+{
+  "app": {
+    "title": "File Organizer",
+    "description": "Organize seus arquivos com inteligência artificial"
+  },
+  "common": {
+    "name": "Nome",
+    "size": "Tamanho",
+    "type": "Tipo",
+    "modified": "Modificado",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "rename": "Renomear",
+    "yes": "Sim",
+    "no": "Não",
+    "back": "Voltar",
+    "continue": "Continuar",
+    "unknown": "Desconhecido",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "filename": "Nome do arquivo",
+    "destination": "Destino",
+    "status": "Status",
+    "action": "Ação",
+    "suggestedName": "Novo nome sugerido",
+    "duplicated": "Duplicado",
+    "ignoredDuplicate": "Duplicata ignorada",
+    "viewAll": "Ver todos",
+    "storage": "Armazenamento",
+    "usedTotal": "Total Usado",
+    "freeSpace": "Espaço Livre",
+    "files_count": "{{count}} arquivos"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "folders": "Pastas",
+    "lastFiles": "Últimos Arquivos",
+    "totalStorage": "Armazenamento Total",
+    "totalFiles": "Total de Arquivos",
+    "categories": "Categorias",
+    "sizeDistribution": "Distribuição por Tamanho",
+    "topFiles": "Top 10 Maiores Arquivos",
+    "filesByCategory": "Arquivos por Categoria",
+    "driveUsageDetail": "{{used}} de {{total}} usados"
+  },
+  "toolbar": {
+    "openFolder": "Abrir Pasta",
+    "organizeWithAI": "Organizar com IA",
+    "duplicates": "Duplicatas",
+    "rename": "Renomear",
+    "analyzeDocs": "Analisar Documentos",
+    "settings": "Configurações",
+    "searchPlaceholder": "Buscar arquivos...",
+    "semanticSearch": "Busca IA",
+    "semanticPlaceholder": "Buscar imagens pelo conteúdo (ex: praia, gato)...",
+    "name": "Nome",
+    "modified": "Modificado",
+    "size": "Tamanho",
+    "destination": "Destino (IA)",
+    "confidence": "Confiança",
+    "filters": "Filtros",
+    "uncheckAll": "Desmarcar Todos",
+    "checkAll": "Marcar Todos"
+  },
+  "breadcrumb": {
+    "selectFolder": "Selecione uma pasta...",
+    "selectFolderToStart": "Selecione uma pasta para começar"
+  },
+  "browser": {
+    "name": "Nome",
+    "destination": "Destino (IA)",
+    "confidence": "Confiança",
+    "size": "Tamanho",
+    "modified": "Modificado",
+    "emptyFolder": "Pasta vazia",
+    "noFilesFound": "Nenhum arquivo encontrado",
+    "selectFolderToStart": "Selecione uma pasta para começar"
+  },
+  "contextMenu": {
+    "openFolder": "Abrir Pasta",
+    "rename": "Renomear",
+    "copyPath": "Copiar Caminho",
+    "delete": "Excluir",
+    "deleteFolder": "Excluir Pasta",
+    "deleteFile": "Excluir Arquivo",
+    "duplicate": "Duplicar",
+    "renameWithAI": "Renomear com IA"
+  },
+  "dialogs": {
+    "rename": {
+      "title": "Renomear",
+      "description": "Digite o novo nome para o {type}.",
+      "folder": "pasta",
+      "file": "arquivo",
+      "nameLabel": "Nome",
+      "cancel": "Cancelar",
+      "confirm": "Renomear"
+    },
+    "delete": {
+      "title": "Excluir",
+      "titleFolder": "Excluir Pasta",
+      "titleFile": "Excluir Arquivo",
+      "description": "Tem certeza que deseja excluir \"{filename}\"? Esta ação não pode ser desfeita.",
+      "confirmDescription": "Tem certeza que deseja excluir este arquivo? Esta ação não pode ser desfeita.",
+      "location": "Localização",
+      "cancel": "Cancelar",
+      "confirm": "Excluir"
+    },
+    "duplicateDelete": {
+      "title": "Excluir Arquivo Duplicado",
+      "description": "Deseja excluir este arquivo duplicado?",
+      "location": "Localização",
+      "duplicateOf": "Duplicata de",
+      "cancel": "Cancelar",
+      "confirm": "Excluir"
+    },
+    "renameWithAI": {
+      "title": "Renomear com IA",
+      "description": "Deseja aplicar a sugestão de nome?",
+      "currentFile": "Arquivo atual",
+      "suggestedName": "Novo nome sugerido",
+      "cancel": "Cancelar",
+      "confirm": "Renomear"
+    },
+    "createFolder": {
+      "title": "Criar Pasta Customizada",
+      "description": "Digite o nome da nova pasta para organizar este arquivo.",
+      "nameLabel": "Nome",
+      "placeholder": "Ex: Documentos Importantes",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar"
+    }
+  },
+  "analysis": {
+    "analyzing": "Analisando...",
+    "loadingPreview": "Carregando pré-visualização...",
+    "analyzeWithAI": "Analisar com IA",
+    "filesAnalyzed": "{count} arquivos analisados com IA",
+    "duplicatesFound": "{count} duplicatas encontradas",
+    "imagesClassified": "{count} imagens classificadas",
+    "processing": "Processando",
+    "classifyingImages": "Classificando imagens"
+  },
+  "preview": {
+    "title": "Pré-visualização",
+    "videoUnavailable": "Pré-visualização de Vídeo Indisponível",
+    "videoDisabledReason": "A pré-visualização foi desativada para garantir a estabilidade do app.",
+    "notAvailable": "Pré-visualização indisponível",
+    "notAvailableReason": "Este tipo de arquivo não pode ser visualizado diretamente.",
+    "type": "Tipo",
+    "size": "Tamanho",
+    "unknown": "Desconhecido",
+    "errorLoadingImage": "Erro ao carregar imagem",
+    "errorLoadingPdf": "Erro ao carregar PDF",
+    "errorLoadingAudio": "Erro ao carregar áudio",
+    "audioNotSupported": "Seu dispositivo não suporta reprodução de áudio."
+  },
+  "badges": {
+    "duplicate": "Duplicado",
+    "files": "arquivos",
+    "folders": "pastas",
+    "analyzed": "analisados",
+    "duplicates": "duplicatas",
+    "renames": "renomeações"
+  },
+  "actions": {
+    "organize": "Organizar",
+    "selectDestination": "Pasta de destino",
+    "applySmartRename": "Aplicar renomeação inteligente?",
+    "selectFolder": "Selecionar Pasta",
+    "selectAll": "Selecionar Tudo",
+    "deselectAll": "Desmarcar Tudo",
+    "selectedFolder": "Pasta selecionada",
+    "changeFolder": "Alterar pasta",
+    "selectFolderToStart": "Selecione uma pasta para começar"
+  },
+  "complete": {
+    "title": "Organização Concluída!",
+    "filesOrganized": "{count} arquivos organizados",
+    "moved": "Movidos",
+    "skipped": "Ignorados",
+    "failed": "Falhas"
+  },
+  "idle": {
+    "title": "File Organizer",
+    "description": "Selecione uma pasta na barra lateral ou clique em \"Abrir Pasta\" para navegar pelos seus arquivos. Em seguida, clique em \"Analisar com IA\" para organizar automaticamente."
+  },
+  "toast": {
+    "success": {
+      "fileDeleted": "Arquivo excluído com sucesso",
+      "fileRenamed": "Arquivo renomeado com sucesso",
+      "folderDeleted": "Pasta excluída com sucesso",
+      "duplicateDeleted": "Arquivo duplicado excluído com sucesso",
+      "pathCopied": "Caminho copiado para a área de transferência",
+      "renamingEnabled": "Renomeação habilitada!",
+      "duplicateCreated": "Duplicata criada na lista (apenas visual)",
+      "aiSuggestionApplied": "Sugestão de nome aplicada. Pressione Enter para confirmar."
+    },
+    "error": {
+      "openingFolder": "Erro ao abrir pasta",
+      "analysis": "Erro na análise",
+      "moving": "Erro ao mover",
+      "deleting": "Erro ao excluir",
+      "renaming": "Erro ao renomear",
+      "loadingPreview": "Erro ao carregar pré-visualização",
+      "selectAtLeastOne": "Selecione pelo menos um arquivo",
+      "filePreview": "Não foi possível visualizar o arquivo"
+    }
+  },
+  "folderTree": {
+    "drives": "UNIDADES",
+    "folders": "PASTAS"
+  },
+  "scanSummary": {
+    "title": "Varredura Concluída",
+    "images": "Imagens",
+    "documents": "Documentos",
+    "others": "Outros",
+    "distribution": "Distribuição",
+    "files": "arquivos"
+  },
+  "fileList": {
+    "title": "Arquivos para Organizar",
+    "selectedCount": "{selected} de {total} selecionados"
+  },
+  "settings": {
+    "title": "Configurações",
+    "general": "Geral",
+    "generalDescription": "Preferências gerais.",
+    "appearance": "Aparência",
+    "appearanceDescription": "Personalize o visual da interface.",
+    "ai": "Motor de IA",
+    "aiDescription": "Configurações do motor de IA local.",
+    "rules": "Regras",
+    "rulesDescription": "Regras de organização de arquivos.",
+    "advanced": "Avançado",
+    "advancedDescription": "Configurações avançadas.",
+    "about": "Sobre",
+    "aboutDescription": "Informações da versão.",
+    "aboutTitle": "File Organizer AI",
+    "aboutVersion": "Versão 0.1.0 (Beta)",
+    "aboutDeveloper": "Desenvolvido com ❤️ por Gabriel",
+    "development": "Em desenvolvimento",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema",
+    "language": "Idioma",
+    "selectLanguage": "Selecione o idioma",
+    "theme": "Tema",
+    "selectTheme": "Selecione o tema",
+    "autoRename": "Renomeação Inteligente",
+    "autoRenameDescription": "Sugerir nomes melhores para os arquivos automaticamente",
+    "autoRenameEnabled": "Renomeação inteligente habilitada",
+    "autoRenameDisabled": "Renomeação inteligente desabilitada",
+    "aiVisionModel": "Modelo de Visão (CLIP)",
+    "aiVisionModelDescription": "Modelo usado para analisar imagens e capturas de tela.",
+    "aiVisionModelDefault": "ViT-B-32 (Padrão - Equilibrado)",
+    "aiVisionModelBalanced": "ViT-L-14 (Mais preciso, lento)",
+    "aiVisionModelFast": "RN50 (Mais rápido)",
+    "aiPythonPath": "Caminho do Executável Python",
+    "aiPythonPathDescription": "Caminho absoluto para o executável do motor Python."
+  },
+  "home": {
+    "files": "arquivos",
+    "folders": "pastas",
+    "analyzeWithAI": "Analisar com IA",
+    "analyzed": "analisado",
+    "duplicates": "duplicados",
+    "renames": "renomeações",
+    "back": "Voltar",
+    "organize": "Organizar",
+    "organizeWithCount": "Organizar ({{count}})",
+    "smartRenamePrompt": "Aplicar renomeação inteligente?",
+    "no": "Não",
+    "yes": "Sim",
+    "organizationComplete": "Organização Concluída!",
+    "filesOrganized": "arquivos organizados",
+    "moved": "Movidos",
+    "skipped": "Ignorados",
+    "failed": "Falhas",
+    "continue": "Continuar",
+    "welcome": "Selecione uma pasta lateral ou clique em 'Selecionar Pasta' para navegar. Depois clique em 'Analisar com IA' para organizar automaticamente.",
+    "selectFolder": "Selecionar Pasta",
+    "movingFiles": "Movendo arquivos..."
+  },
+  "toasts": {
+    "openFolderError": "Erro ao abrir pasta",
+    "analyzedFiles": "arquivos analisados com IA",
+    "duplicatesFound": "duplicatas encontradas",
+    "imagesClassified": "imagens classificadas",
+    "analysisError": "Erro durante a análise",
+    "selectOneFile": "Selecione ao menos um arquivo",
+    "moveError": "Erro ao mover arquivos",
+    "renamingEnabled": "Renomeação inteligente habilitada!"
+  }
+}
