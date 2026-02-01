@@ -40,7 +40,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install frontend dependencies
-        # Assuming package.json is in root of repo (file-organizer-app)
+        working-directory: file-organizer-app
         run: bun install
 
       - name: Build and Bundle
