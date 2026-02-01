@@ -318,5 +318,169 @@ def info():
         display.print_error(f"Error checking system: {e}")
 
 
+@app.command()
+def analyze(
+    directory: str = typer.Argument(..., help="Directory to analyze"),
+):
+
+    import json
+    import sys
+    import traceback
+    
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        
+        target_dir = Path(directory).resolve()
+        
+        category_manager = CategoryManager()
+        scanner = FileScanner()
+        
+        scan_result = scanner.scan(target_dir)
+        
+        classifications = []
+        idx = 0
+        hashes = {}
+        duplicates_count = 0
+        
+        all_files = scan_result.all_files
+        
+        for file_info in all_files:
+            h = file_info.metadata.get("hash", "")
+            is_duplicate = False
+            duplicate_of = None
+            
+            if h:
+                if h in hashes:
+                    is_duplicate = True
+                    duplicate_of = hashes[h]
+                    duplicates_count += 1
+                else:
+                    hashes[h] = str(file_info.path)
+
+            category = None
+            confidence = 0.5
+            
+            if not file_info.is_image:
+                cat_obj = category_manager.get_category_by_extension(file_info.extension, file_info.name)
+                if cat_obj:
+                    category = cat_obj.folder_name
+                    confidence = 1.0
+                else:
+                    category = "Outros"
+                    confidence = 0.5
+
+            classifications.append({
+                "index": idx,
+                "filename": file_info.name,
+                "filepath": str(file_info.path),
+                "suggested_folder": category or "Outros",
+                "suggested_name": None, # Logic simplified for now
+                "confidence": confidence,
+                "selected": not is_duplicate,
+                "is_duplicate": is_duplicate,
+                "duplicate_of": duplicate_of
+            })
+            idx += 1
+            
+        image_indices = [i for i, f in enumerate(all_files) if f.is_image]
+        
+        if image_indices:
+            try:
+                inference = ClipInference()
+                categories = category_manager.get_image_categories()
+                cat_names = [c.name for c in categories]
+                cat_prompts = category_manager.get_clip_prompts()
+                
+                img_path_objs = [all_files[i].path for i in image_indices]
+                
+                results = inference.classify_batch(img_path_objs, cat_names, cat_prompts)
+                
+                for i, res in enumerate(results):
+                    real_idx = image_indices[i]
+                    folder = next((c.folder_name for c in categories if c.name == res.suggested_category), res.suggested_category)
+                    
+                    classifications[real_idx]["suggested_folder"] = folder
+                    classifications[real_idx]["confidence"] = res.confidence
+                    
+            except Exception as e:
+                print(f"CLIP Error: {e}", file=sys.stderr)
+
+        output = {
+            "total_files": scan_result.total_files,
+            "images": len(scan_result.images),
+            "documents": len(scan_result.documents),
+            "other_files": len(scan_result.other_files),
+            "classifications": classifications,
+            "scan_time": scan_result.scan_time_seconds,
+            "total_duplicates": duplicates_count
+        }
+        
+        print(json.dumps(output))
+        
+    except Exception as e:
+        error_out = {"error": str(e), "trace": traceback.format_exc()}
+        print(json.dumps(error_out))
+        sys.exit(1)
+
+
+@app.command()
+def search(
+    directory: str = typer.Argument(..., help="Directory to search"),
+    query: str = typer.Argument(..., help="Search query"),
+):
+  
+    import json
+    import sys
+    import numpy as np
+    
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        target_dir = Path(directory).resolve()
+        
+        scanner = FileScanner(use_ocr=False)
+        scan_result = scanner.scan(target_dir)
+        images = scan_result.images
+        
+        if not images:
+            print(json.dumps([]))
+            sys.exit(0)
+            
+        inference = ClipInference()
+        query_embedding = inference.encode_text(query)
+        q_vec = np.array(query_embedding)
+        
+        results = []
+        
+        for idx, img in enumerate(images):
+            img_emb = inference.get_image_embedding(img.path)
+            if not img_emb: continue
+            
+            i_vec = np.array(img_emb)
+            # Cosine similarity
+            similarity = np.dot(q_vec, i_vec) / (np.linalg.norm(q_vec) * np.linalg.norm(i_vec))
+            
+            if similarity > 0.15:
+                results.append({
+                    "index": idx,
+                    "filename": img.name,
+                    "filepath": str(img.path),
+                    "suggested_folder": "Busca",
+                    "suggested_name": None,
+                    "confidence": float(similarity),
+                    "selected": True,
+                    "is_duplicate": False,
+                    "duplicate_of": None
+                })
+        
+        results.sort(key=lambda x: x["confidence"], reverse=True)
+        print(json.dumps(results[:50]))
+        
+    except Exception as e:
+        import traceback
+        print(f"Search Error: {e}", file=sys.stderr)
+        print(json.dumps([])) 
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     app()

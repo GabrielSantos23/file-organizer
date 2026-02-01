@@ -8,7 +8,16 @@
     "dialog:default",
     "dialog:allow-open",
     "shell:default",
-    "shell:allow-execute",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "bin/file-organizer-engine",
+          "cmd": "sidecar",
+          "args": true
+        }
+      ]
+    },
     "fs:default",
     "fs:allow-read",
     "fs:allow-write",

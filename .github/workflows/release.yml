@@ -46,14 +46,38 @@ jobs:
         working-directory: file-organizer-app
         run: bun install
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build Sidecar (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          pyinstaller --clean --onefile --name file-organizer-engine engine.py
+          mkdir -p file-organizer-app/apps/web/src-tauri/bin
+          mv dist/file-organizer-engine file-organizer-app/apps/web/src-tauri/bin/file-organizer-engine-x86_64-unknown-linux-gnu
+
+      - name: Build Sidecar (Windows)
+        if: matrix.platform == 'windows-latest'
+        run: |
+          pyinstaller --clean --onefile --name file-organizer-engine engine.py
+          mkdir -p file-organizer-app/apps/web/src-tauri/bin
+          mv dist/file-organizer-engine.exe file-organizer-app/apps/web/src-tauri/bin/file-organizer-engine-x86_64-pc-windows-msvc.exe
+
       - name: Build and Bundle
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Path to the directory containing tauri.conf.json (relative to repo root)
           projectPath: file-organizer-app/apps/web
-          tagName: v__VERSION__ # the action automatically replaces this with the tag name
+          tagName: v__VERSION__
           releaseName: "App v__VERSION__"
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true

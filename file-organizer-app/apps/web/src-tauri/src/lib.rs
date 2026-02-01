@@ -153,229 +153,24 @@ async fn list_directory(directory: String) -> Result<ListResult, String> {
     })
 }
 
+use tauri_plugin_shell::ShellExt;
+
 #[tauri::command]
-async fn analyze_directory(directory: String) -> Result<AnalyzeResult, String> {
-    let current_dir = std::env::current_dir().map_err(|e| e.to_string())?;
-    
-    let mut project_root = current_dir.clone();
-    let mut found = false;
-    for _ in 0..10 {
-        if project_root.join("core").exists() && project_root.join("core").is_dir() {
-            found = true;
-            break;
-        }
-        if !project_root.pop() {
-            break;
-        }
-    }
-    
-    let root_path = if found {
-        project_root
-    } else {
-        let engine_path = std::env::var("FILE_ORGANIZER_ENGINE")
-            .unwrap_or_else(|_| "engine.py".to_string());
-        Path::new(&engine_path)
-            .parent()
-            .unwrap_or(Path::new("."))
-            .to_path_buf()
-            .canonicalize()
-            .unwrap_or(current_dir)
-    };
-
-    let parent_dir = root_path.to_string_lossy().to_string();
-        
-    println!("DEBUG: Current dir: {}", std::env::current_dir().unwrap_or_default().display());
-    println!("DEBUG: Found project root: {}", parent_dir);
-
-    let escaped_parent = parent_dir.replace('\\', "\\\\").replace('\'', "\\'");
-    let escaped_directory = directory.replace('\\', "\\\\").replace('\'', "\\'");
-    
-    let python_code = format!(
-        r#"
-import sys
-import json
-import os
-import traceback
-from pathlib import Path
-
-debug_file = os.path.expanduser("~/file-organizer-debug.log")
-def log(msg):
-    with open(debug_file, "a", encoding="utf-8") as f:
-        f.write(f"{{msg}}\n")
-    print(f"DEBUG: {{msg}}", file=sys.stderr)
-
-log("--- Starting Analysis ---")
-
-sys.path.insert(0, '{}')
-log(f"Added project root: {{sys.path[0]}}")
-
-try:
-    from core.inference import ClipInference
-    from core.scanner import FileScanner
-    from core.categories import CategoryManager
-    log("Modules imported successfully")
-except ImportError as e:
-    log(f"ImportError: {{e}}")
-    log(f"Sys Path: {{sys.path}}")
-    log(f"CWD: {{os.getcwd()}}")
-    print(f"ImportError: {{e}}", file=sys.stderr)
-    sys.exit(1)
-
-directory = '{}'
-log(f"Scanning directory: {{directory}}")
-
-try:
-    scanner = FileScanner()
-    category_manager = CategoryManager()
-    log("Scanner and CategoryManager initialized")
-except Exception as e:
-    log(f"InitError: {{e}}")
-    print(f"InitError: {{e}}", file=sys.stderr)
-    sys.exit(1)
-
-try:
-    scan_result = scanner.scan(directory)
-    log(f"Scan complete. Files found: {{len(scan_result.all_files)}}")
-except Exception as e:
-    log(f"ScanError: {{e}}")
-    print(f"ScanError: {{e}}", file=sys.stderr)
-    sys.exit(1)
-
-
-classifications = []
-idx = 0
-hashes = {{}}
-duplicates_count = 0
-
-def suggest_name(file_info):
-    meta = file_info.metadata
-    ext = file_info.extension
-    if file_info.is_document:
-        title = meta.get("title", "").strip()
-        if title and len(title) > 3 and len(title) < 100:
-            clean_title = "".join([c if c.isalnum() or c in " _-" else "_" for c in title])
-            return f"{{clean_title}}{{ext}}"
-    return None
-
-all_files = scan_result.all_files
-for file_info in all_files:
-    h = file_info.metadata.get("hash", "")
-    is_duplicate = False
-    duplicate_of = None
-    
-    if h:
-        if h in hashes:
-            is_duplicate = True
-            duplicate_of = hashes[h]
-            duplicates_count += 1
-        else:
-            hashes[h] = str(file_info.path)
-
-    category = None
-    confidence = 0.5
-    
-    if not file_info.is_image:
-        cat_obj = category_manager.get_category_by_extension(file_info.extension, file_info.name)
-        if cat_obj:
-            category = cat_obj.folder_name
-            confidence = 1.0
-        else:
-            category = "Outros"
-            confidence = 0.5
-
-    classifications.append({{
-        "index": idx,
-        "filename": file_info.name,
-        "filepath": str(file_info.path),
-        "suggested_folder": category or "Outros",
-        "suggested_name": suggest_name(file_info),
-        "confidence": confidence,
-        "selected": not is_duplicate,
-        "is_duplicate": is_duplicate,
-        "duplicate_of": duplicate_of
-    }})
-    idx += 1
-
-image_indices = [i for i, f in enumerate(all_files) if f.is_image]
-log(f"Found {{len(image_indices)}} images to classify")
-
-if image_indices:
-    try:
-        log("Initializing ClipInference...")
-        inference = ClipInference()
-        categories = category_manager.get_image_categories()
-        cat_names = [c.name for c in categories]
-        cat_prompts = category_manager.get_clip_prompts()
-        
-        log(f"Using {{len(categories)}} categories: {{cat_names}}")
-        
-        img_paths = [all_files[i].path for i in image_indices]
-        log(f"Starting batch classification for {{len(img_paths)}} images...")
-        results = inference.classify_batch(img_paths, cat_names, cat_prompts)
-        log("Batch classification complete")
-        
-        for i, res in enumerate(results):
-            real_idx = image_indices[i]
-            folder = next((c.folder_name for c in categories if c.name == res.suggested_category), res.suggested_category)
-            classifications[real_idx]["suggested_folder"] = folder
-            classifications[real_idx]["confidence"] = res.confidence
-            log(f"Result: {{res.file_path.name}} -> {{folder}} ({{res.confidence:.2%}})")
-            
-    except Exception as e:
-        log(f"CLIP ERROR: {{e}}")
-        log(traceback.format_exc())
-        print(f"CLIP ERROR: {{e}}", file=sys.stderr)
-
-output = {{
-    "total_files": scan_result.total_files,
-    "images": len(scan_result.images),
-    "documents": len(scan_result.documents),
-    "other_files": len(scan_result.other_files),
-    "classifications": classifications,
-    "scan_time": scan_result.scan_time_seconds,
-    "total_duplicates": duplicates_count
-}}
-
-print(json.dumps(output))
-"#,
-        escaped_parent,
-        escaped_directory
-    );
-    
-
-    
-    let mut python_cmd = if cfg!(target_os = "windows") {
-        "python".to_string()
-    } else {
-        "python3".to_string()
-    };
-
-    let venv_path = if cfg!(target_os = "windows") {
-        root_path.join(".venv").join("Scripts").join("python.exe")
-    } else {
-        root_path.join(".venv").join("bin").join("python")
-    };
-
-    if venv_path.exists() {
-        python_cmd = venv_path.to_string_lossy().to_string();
-    }
-    
-    let output = Command::new(python_cmd)
-        .args(["-c", &python_code])
+async fn analyze_directory(app: tauri::AppHandle, directory: String) -> Result<AnalyzeResult, String> {
+    let output = app.shell().sidecar("file-organizer-engine")
+        .map_err(|e| format!("Failed to create sidecar command: {}", e))?
+        .args(["analyze", &directory])
         .output()
-        .map_err(|e| format!("Failed to execute Python: {}", e))?;
-    
+        .await
+        .map_err(|e| format!("Failed to execute sidecar: {}", e))?;
+
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-        if !stderr.trim().is_empty() {
-            return Err(format!("Python Error: {}", stderr));
-        }
-        return Err(format!("Python Failed (unknown): {}", stdout));
+        return Err(format!("Engine Error: {}", stderr));
     }
-    
-    serde_json::from_str(&String::from_utf8_lossy(&output.stdout))
-        .map_err(|e| format!("JSON Error: {}", e))
+
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    serde_json::from_str(&stdout).map_err(|e| format!("JSON Error: {}", e))
 }
 
 #[tauri::command]
@@ -639,118 +434,21 @@ async fn delete_file(path: String) -> Result<(), String> {
 }
 
 #[tauri::command]
-async fn search_semantic(directory: String, query: String) -> Result<Vec<FileClassification>, String> {
-    let current_dir = std::env::current_dir().map_err(|e| e.to_string())?;
-    
-    let mut project_root = current_dir.clone();
-    let mut found = false;
-    for _ in 0..10 {
-        if project_root.join("core").exists() && project_root.join("core").is_dir() {
-            found = true;
-            break;
-        }
-        if !project_root.pop() {
-            break;
-        }
-    }
-    
-    let root_path = if found {
-        project_root
-    } else {
-        let engine_path = std::env::var("FILE_ORGANIZER_ENGINE")
-            .unwrap_or_else(|_| "engine.py".to_string());
-        Path::new(&engine_path)
-            .parent()
-            .unwrap_or(Path::new("."))
-            .to_path_buf()
-    };
-
-    let parent_dir = root_path.to_string_lossy().to_string();
-    let escaped_parent = parent_dir.replace('\\', "\\\\").replace('\'', "\\'");
-    let escaped_directory = directory.replace('\\', "\\\\").replace('\'', "\\'");
-    let escaped_query = query.replace('\\', "\\\\").replace('\'', "\\'");
-    
-    let python_code = format!(
-        r#"
-import sys
-import json
-import os
-from pathlib import Path
-
-sys.path.insert(0, '{}')
-
-try:
-    from core.inference import ClipInference
-    from core.scanner import FileScanner
-    
-    directory = '{}'
-    query = '{}'
-    
-    scanner = FileScanner(use_ocr=False)
-    scan_result = scanner.scan(directory)
-    images = scan_result.images
-    
-    if not images:
-        print(json.dumps([]))
-        sys.exit(0)
-        
-    inference = ClipInference()
-    query_embedding = inference.encode_text(query)
-    
-    results = []
-    import numpy as np
-    
-    q_vec = np.array(query_embedding)
-    
-    for idx, img in enumerate(images):
-        img_emb = inference.get_image_embedding(img.path)
-        if not img_emb: continue
-        
-        i_vec = np.array(img_emb)
-        similarity = np.dot(q_vec, i_vec) / (np.linalg.norm(q_vec) * np.linalg.norm(i_vec))
-        
-        if similarity > 0.15: # Threshold
-            results.append({{
-                "index": idx,
-                "filename": img.name,
-                "filepath": str(img.path),
-                "suggested_folder": "Busca",
-                "suggested_name": None,
-                "confidence": float(similarity),
-                "selected": True,
-                "is_duplicate": False,
-                "duplicate_of": None
-            }})
-            
-    # Sort by confidence
-    results.sort(key=lambda x: x["confidence"], reverse=True)
-    print(json.dumps(results[:50])) # Limit to top 50
-    
-except Exception as e:
-    import traceback
-    print(json.dumps({{"error": str(e), "trace": traceback.format_exc()}}), file=sys.stderr)
-    sys.exit(1)
-"#,
-        escaped_parent,
-        escaped_directory,
-        escaped_query
-    );
-    
-    let mut python_cmd = if cfg!(target_os = "windows") { "python".to_string() } else { "python3".to_string() };
-    let venv_path = if cfg!(target_os = "windows") { root_path.join(".venv").join("Scripts").join("python.exe") } else { root_path.join(".venv").join("bin").join("python") };
-    if venv_path.exists() { python_cmd = venv_path.to_string_lossy().to_string(); }
-    
-    let output = Command::new(python_cmd)
-        .args(["-c", &python_code])
+async fn search_semantic(app: tauri::AppHandle, directory: String, query: String) -> Result<Vec<FileClassification>, String> {
+    let output = app.shell().sidecar("file-organizer-engine")
+        .map_err(|e| format!("Failed to create sidecar command: {}", e))?
+        .args(["search", &directory, &query])
         .output()
-        .map_err(|e| format!("Failed to execute Python: {}", e))?;
-    
+        .await
+        .map_err(|e| format!("Failed to execute sidecar: {}", e))?;
+
     if !output.status.success() {
-        return Err(String::from_utf8_lossy(&output.stderr).to_string());
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        return Err(format!("Engine Error: {}", stderr));
     }
-    
-    serde_json::from_str(&String::from_utf8_lossy(&output.stdout))
-        .map_err(|e| format!("JSON Error: {}", e))
+
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    serde_json::from_str(&stdout).map_err(|e| format!("JSON Error: {}", e))
 }
 
 #[tauri::command]
