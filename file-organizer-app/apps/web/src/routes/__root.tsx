@@ -1,4 +1,8 @@
-import { HeadContent, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import {
+  HeadContent,
+  Outlet,
+  createRootRouteWithContext,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { ThemeProvider } from "@/components/theme-provider";
@@ -38,9 +42,7 @@ function RootComponent() {
         </main>
         <Toaster richColors position="bottom-right" />
       </ThemeProvider>
-      {process.env.NODE_ENV === 'development' && (
-        <TanStackRouterDevtools position="bottom-left" />
-      )}
+      {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-left" />}
     </>
   );
 }
