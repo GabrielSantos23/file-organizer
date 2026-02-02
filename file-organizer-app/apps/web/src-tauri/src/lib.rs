@@ -622,6 +622,9 @@ use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // FIX: Disable WebKit compositing to prevent blank screen on Linux/NVIDIA
+    std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
+
     tauri::Builder::default()
         .setup(|app| {
             #[cfg(debug_assertions)]
