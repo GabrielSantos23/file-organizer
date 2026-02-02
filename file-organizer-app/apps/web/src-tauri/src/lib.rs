@@ -618,9 +618,24 @@ async fn get_files_by_category(directory: String, category: String) -> Result<Ve
     Ok(filtered_files)
 }
 
+use tauri::Manager;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .setup(|app| {
+            #[cfg(debug_assertions)] // Open devtools by default only in dev
+            {
+                let window = app.get_webview_window("main").unwrap();
+                window.open_devtools();
+            }
+            #[cfg(not(debug_assertions))] // FORCE devtools in release for debugging this issue
+            {
+                 let window = app.get_webview_window("main").unwrap();
+                 window.open_devtools();
+            }
+            Ok(())
+        })
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
