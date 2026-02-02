@@ -1,6 +1,14 @@
-
 __pycache__/
 *.pyc
 node_modules/
 target/
 .env
+
+# Build artifacts
+build/
+dist/
+*.spec
+*.log
+
+# Tauri sidecar bin
+file-organizer-app/apps/web/src-tauri/bin/

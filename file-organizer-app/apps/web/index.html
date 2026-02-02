@@ -8,6 +8,21 @@
 
   <body>
     <div id="app"></div>
+    <script>
+      window.onerror = function (message, source, lineno, colno, error) {
+        document.body.innerHTML = `
+          <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:#111;color:#ff5555;padding:20px;z-index:9999;font-family:monospace;white-space:pre-wrap;">
+            <h2 style="color:white;margin-top:0">CRITICAL LOADING ERROR</h2>
+            <strong>Message:</strong> ${message}<br>
+            <strong>Source:</strong> ${source}:${lineno}:${colno}<br><br>
+            <strong>Stack Traces:</strong><br>${error?.stack || "No stack available"}
+          </div>
+        `;
+      };
+      window.onunhandledrejection = function (event) {
+        console.error("Unhandled Rejection:", event.reason);
+      };
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
