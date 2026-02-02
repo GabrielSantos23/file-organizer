@@ -625,13 +625,6 @@ pub fn run() {
     // FIX: Disable WebKit compositing to prevent blank screen on Linux/NVIDIA
     std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
 
-    // DEBUG LOG
-    if let Ok(mut file) = std::fs::File::create("/tmp/file-organizer-debug.log") {
-        use std::io::Write;
-        let _ = writeln!(file, "App started at {:?}", std::time::SystemTime::now());
-        let _ = writeln!(file, "Env vars: {:?}", std::env::vars().collect::<Vec<_>>());
-    }
-
     tauri::Builder::default()
         .setup(|app| {
             #[cfg(debug_assertions)]

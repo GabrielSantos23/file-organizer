@@ -327,9 +327,18 @@ def analyze(
     import sys
     import traceback
     
+    # Save original stdout to ensure only JSON goes there
+    original_stdout = sys.stdout
     try:
-        sys.stdout.reconfigure(encoding='utf-8')
+        original_stdout.reconfigure(encoding='utf-8')
+    except AttributeError:
+        pass
         
+    # Redirect all standard output to stderr to prevent pollution of the JSON pipe
+    # This catches progress bars (tqdm), warnings, and utility prints
+    sys.stdout = sys.stderr
+    
+    try:
         target_dir = Path(directory).resolve()
         
         category_manager = CategoryManager()
@@ -403,8 +412,9 @@ def analyze(
                     classifications[real_idx]["confidence"] = res.confidence
                     
             except Exception as e:
-                print(f"CLIP Error: {e}", file=sys.stderr)
-
+                # Use sys.stderr explicitly or print, which now goes to stderr
+                print(f"CLIP Error: {e}")
+ 
         output = {
             "total_files": scan_result.total_files,
             "images": len(scan_result.images),
@@ -415,11 +425,13 @@ def analyze(
             "total_duplicates": duplicates_count
         }
         
-        print(json.dumps(output))
+        # Print FINAL JSON to the REAL stdout
+        print(json.dumps(output), file=original_stdout)
         
     except Exception as e:
         error_out = {"error": str(e), "trace": traceback.format_exc()}
-        print(json.dumps(error_out))
+        # Print ERROR JSON to the REAL stdout
+        print(json.dumps(error_out), file=original_stdout)
         sys.exit(1)
 
 
@@ -433,8 +445,17 @@ def search(
     import sys
     import numpy as np
     
+    # Save original stdout
+    original_stdout = sys.stdout
     try:
-        sys.stdout.reconfigure(encoding='utf-8')
+        original_stdout.reconfigure(encoding='utf-8')
+    except AttributeError:
+        pass
+        
+    # Redirect all other stdout prints to stderr
+    sys.stdout = sys.stderr
+    
+    try:
         target_dir = Path(directory).resolve()
         
         scanner = FileScanner(use_ocr=False)
@@ -442,7 +463,7 @@ def search(
         images = scan_result.images
         
         if not images:
-            print(json.dumps([]))
+            print(json.dumps([]), file=original_stdout)
             sys.exit(0)
             
         inference = ClipInference()
@@ -473,12 +494,14 @@ def search(
                 })
         
         results.sort(key=lambda x: x["confidence"], reverse=True)
-        print(json.dumps(results[:50]))
+        print(json.dumps(results[:50]), file=original_stdout)
         
     except Exception as e:
         import traceback
-        print(f"Search Error: {e}", file=sys.stderr)
-        print(json.dumps([])) 
+        # Print error to stderr for logs
+        print(f"Search Error: {e}")
+        # Return empty list or error JSON to stdout so UI doesn't crash
+        print(json.dumps([]), file=original_stdout) 
         sys.exit(1)
 
 
