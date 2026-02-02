@@ -9,10 +9,9 @@ import {
   Usb,
   Server,
   Loader2,
-  BarChart3,
   LayoutDashboard,
 } from "lucide-react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { getMountedDrives, listFolders } from "@/lib/tauri";
 import type { FolderNode, DriveInfo } from "@/lib/types";
@@ -39,7 +38,7 @@ function getDriveIcon(driveType: string) {
     case "root":
       return <Server className="h-4 w-4" />;
     case "drive":
-      return <HardDrive className="h-4 w-4" />; // Windows drives
+      return <HardDrive className="h-4 w-4" />;
     default:
       return <HardDrive className="h-4 w-4" />;
   }
@@ -48,6 +47,7 @@ function getDriveIcon(driveType: string) {
 export function FolderTree({ currentPath, onSelectFolder }: FolderTreeProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const [drives, setDrives] = useState<DriveInfo[]>([]);
   const [selectedDrive, setSelectedDrive] = useState<string>("");
   const [rootFolders, setRootFolders] = useState<TreeNode[]>([]);
@@ -56,6 +56,8 @@ export function FolderTree({ currentPath, onSelectFolder }: FolderTreeProps) {
   const [childrenCache, setChildrenCache] = useState<
     Record<string, TreeNode[]>
   >({});
+
+  const isAtDashboard = location.pathname === "/dashboard";
 
   useEffect(() => {
     getMountedDrives()
@@ -128,7 +130,8 @@ export function FolderTree({ currentPath, onSelectFolder }: FolderTreeProps) {
     node: TreeNode;
     depth?: number;
   }) => {
-    const isSelected = currentPath === node.path;
+    // Só mostramos a pasta selecionada se NÃO estivermos no dashboard
+    const isSelected = !isAtDashboard && currentPath === node.path;
     const isExpanded = expandedPaths.has(node.path);
     const isLoading = loadingPaths.has(node.path);
     const children = childrenCache[node.path] || [];
@@ -186,15 +189,17 @@ export function FolderTree({ currentPath, onSelectFolder }: FolderTreeProps) {
 
   return (
     <div className="w-64 border-r border-border bg-card flex flex-col h-full shadow-sm">
-      <div className="p-3 border-b border-border ">
+      <div className="p-3 border-b border-border">
         <button
           onClick={() => navigate({ to: "/dashboard" })}
-          className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm font-bold rounded-xl transition-all text-primary cursor-pointer justify-start ${
-            window.location.pathname === "/dashboard" ? "bg-muted" : ""
+          className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-bold rounded-xl transition-all cursor-pointer justify-start mb-1 ${
+            isAtDashboard
+              ? "bg-muted text-foreground shadow-md"
+              : "bg-transparent text-foreground hover:bg-muted"
           }`}
         >
-          <span>{t("dashboard.title")}</span>
           <LayoutDashboard className="h-4.5 w-4.5" />
+          <span>{t("dashboard.title")}</span>
         </button>
       </div>
 
@@ -209,9 +214,9 @@ export function FolderTree({ currentPath, onSelectFolder }: FolderTreeProps) {
               key={drive.path}
               onClick={() => selectDrive(drive.path, true)}
               className={`w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md transition-colors ${
-                selectedDrive === drive.path
+                !isAtDashboard && selectedDrive === drive.path
                   ? "bg-primary/10 text-primary font-medium"
-                  : "hover:bg-muted"
+                  : "hover:bg-muted text-foreground"
               }`}
             >
               {getDriveIcon(drive.drive_type)}

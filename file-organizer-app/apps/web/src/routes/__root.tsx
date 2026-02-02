@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   HeadContent,
   Outlet,
@@ -28,6 +29,16 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 });
 
 function RootComponent() {
+  useEffect(() => {
+    // Disable right-click context menu in production
+    if (import.meta.env.PROD) {
+      const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+      document.addEventListener("contextmenu", handleContextMenu);
+      return () =>
+        document.removeEventListener("contextmenu", handleContextMenu);
+    }
+  }, []);
+
   return (
     <>
       <HeadContent />

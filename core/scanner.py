@@ -66,11 +66,19 @@ class FileScanner:
     VIDEO_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv", ".wmv"}
     AUDIO_EXTENSIONS = {".mp3", ".wav", ".flac", ".ogg", ".m4a", ".aac", ".wma"}
     
-    def __init__(self, recursive: bool = False, include_hidden: bool = False, use_ocr: bool = True):
+    EXCLUDE_DIRS = {
+        "node_modules", ".git", ".venv", "venv", "__pycache__", 
+        ".next", ".nuxt", "dist", "build", ".cache", "AppData",
+        "Local Settings", "Application Data"
+    }
+    
+    def __init__(self, recursive: bool = False, include_hidden: bool = False, use_ocr: bool = True, calculate_hash: bool = True, fast_mode: bool = False):
     
         self.recursive = recursive
         self.include_hidden = include_hidden
         self.use_ocr = use_ocr
+        self.calculate_hash = calculate_hash
+        self.fast_mode = fast_mode
         self.ocr = None
         if use_ocr:
             try:
@@ -103,18 +111,23 @@ class FileScanner:
         other_files: list[FileInfo] = []
         errors: list[tuple[Path, str]] = []
         
+        files_to_scan = []
         if self.recursive:
-            file_iterator = directory.rglob("*")
+            for root, dirs, files in os.walk(directory):
+                # Filter excluded directories in-place to prevent os.walk from entering them
+                dirs[:] = [d for d in dirs if d not in self.EXCLUDE_DIRS and (self.include_hidden or not d.startswith("."))]
+                for file in files:
+                    if not self.include_hidden and file.startswith("."):
+                        continue
+                    files_to_scan.append(Path(root) / file)
         else:
-            file_iterator = directory.glob("*")
-        
-        for file_path in file_iterator:
-            if file_path.is_dir():
-                continue
-            
-            if not self.include_hidden and file_path.name.startswith("."):
-                continue
-            
+            for item in directory.iterdir():
+                if item.is_file():
+                    if not self.include_hidden and item.name.startswith("."):
+                        continue
+                    files_to_scan.append(item)
+
+        for file_path in files_to_scan:
             try:
                 file_info = self._get_file_info(file_path)
                 
@@ -185,7 +198,7 @@ class FileScanner:
         metadata = {
             "extension": extension,
             "size_bytes": stat.st_size,
-            "hash": self._calculate_hash(file_path) if stat.st_size < 100 * 1024 * 1024 else "" # Hash only files < 100MB for speed
+            "hash": self._calculate_hash(file_path) if self.calculate_hash and stat.st_size < 100 * 1024 * 1024 else "" # Hash only files < 100MB for speed
         }
         
         if extension in self.VIDEO_EXTENSIONS:
@@ -195,7 +208,7 @@ class FileScanner:
         elif extension in self.ARCHIVE_EXTENSIONS:
             metadata["type"] = "archive"
         
-        if is_document:
+        if is_document and not self.fast_mode:
             doc_meta = self.get_document_metadata(file_path)
             metadata.update(doc_meta)
             

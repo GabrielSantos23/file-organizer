@@ -65,6 +65,7 @@ pub struct StorageStats {
     pub total_files: usize,
     pub categories: Vec<CategoryStat>,
     pub largest_files: Vec<FileItem>,
+    pub recent_files: Vec<FileItem>,
 }
 
 #[tauri::command]
@@ -397,7 +398,12 @@ async fn get_available_categories() -> Result<Vec<String>, String> {
         "Design".into(), "Fontes".into(), "Dicionarios".into(),
         "Certificados".into(), "Bancos_Dados".into(), "Torrents".into(),
         "Ebooks".into(), "Modelos_3D".into(), "Backups".into(),
-        "Downloads_Incompletos".into(), "Streaming_Playlists".into(), "Outros".into(),
+        "Downloads_Incompletos".into(), "Streaming_Playlists".into(),
+        "Imagens".into(), "Áudio".into(), "Vídeos".into(),
+        "Software".into(), "Documentos/Logs".into(), "Outros".into(),
+        "Design/Vetores".into(), "Bancos de Dados".into(), "E-books".into(),
+        "modelos 3D".into(), "Configurações".into(), "Planilhas".into(),
+        "Apresentações".into(), "Dados".into(), "Imagens de Disco".into(),
     ])
 }
 
@@ -433,21 +439,96 @@ async fn delete_file(path: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn show_in_folder(path: String) -> Result<(), String> {
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("explorer")
+            .args(["/select,", &path])
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .args(["-R", &path])
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        let parent = Path::new(&path).parent().unwrap_or(Path::new("/")).to_string_lossy();
+        std::process::Command::new("xdg-open")
+            .arg(parent.as_ref())
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+async fn open_file(path: String) -> Result<(), String> {
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("cmd")
+            .args(["/c", "start", "", &path])
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        std::process::Command::new("xdg-open")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
 async fn search_semantic(app: tauri::AppHandle, directory: String, query: String) -> Result<Vec<FileClassification>, String> {
-    let output = app.shell().sidecar("file-organizer-engine")
+    use tauri_plugin_shell::process::CommandEvent;
+    use tauri::Emitter;
+
+    let (mut rx, _child) = app.shell().sidecar("file-organizer-engine")
         .map_err(|e| format!("Failed to create sidecar command: {}", e))?
         .args(["search", &directory, &query])
-        .output()
-        .await
-        .map_err(|e| format!("Failed to execute sidecar: {}", e))?;
+        .spawn()
+        .map_err(|e| format!("Failed to spawn sidecar: {}", e))?;
 
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-        return Err(format!("Engine Error: {}", stderr));
+    let mut stdout_buf = Vec::new();
+    let mut stderr_buf = Vec::new();
+
+    while let Some(event) = rx.recv().await {
+        match event {
+            CommandEvent::Stdout(data) => {
+                stdout_buf.extend(data);
+            }
+            CommandEvent::Stderr(data) => {
+                let line = String::from_utf8_lossy(&data).to_string();
+                if line.contains("[UI_PROGRESS]") {
+                    let msg = line.replace("[UI_PROGRESS]", "").trim().to_string();
+                    let _ = app.emit("search-progress", msg);
+                }
+                stderr_buf.extend(data);
+            }
+            _ => {}
+        }
     }
 
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    serde_json::from_str(&stdout).map_err(|e| format!("JSON Error: {}", e))
+    let stdout_str = String::from_utf8_lossy(&stdout_buf).to_string();
+    if stdout_str.trim().is_empty() {
+        let stderr_str = String::from_utf8_lossy(&stderr_buf).to_string();
+        return Err(format!("Engine Error (Empty Output): {}", stderr_str));
+    }
+
+    serde_json::from_str(&stdout_str).map_err(|e| format!("JSON Error: {}\nRaw: {}", e, stdout_str))
 }
 
 #[tauri::command]
@@ -463,25 +544,35 @@ async fn get_directory_stats(directory: String) -> Result<StorageStats, String> 
     let mut total_files = 0;
     let mut categories_map: std::collections::HashMap<String, (usize, u64)> = std::collections::HashMap::new();
     let mut all_files = Vec::new();
+    let mut all_recent_files = Vec::new();
 
     fn get_category(ext: &str) -> &'static str {
         match ext.to_lowercase().as_str() {
-            "jpg" | "jpeg" | "png" | "gif" | "webp" | "bmp" | "svg" | "ico" | "tiff" | "heic" | "avif" => "Imagens",
-            "mp4" | "mkv" | "avi" | "mov" | "webm" | "wmv" | "flv" | "m4v" | "3gp" => "Vídeos",
-            "pdf" | "doc" | "docx" | "txt" | "md" | "rtf" | "odt" | "log" | "pages" => "Documentos/Logs",
-            "mp3" | "wav" | "flac" | "ogg" | "m4a" | "aac" | "wma" | "mid" => "Áudio",
-            "zip" | "rar" | "7z" | "tar" | "gz" | "bz2" | "xz" | "iso" | "dmg" => "Arquivos Compactados",
-            "exe" | "msi" | "app" | "deb" | "rpm" | "bin" | "sh" | "bat" => "Instaladores/Executáveis",
-            "py" | "js" | "ts" | "rs" | "cpp" | "c" | "h" | "html" | "css" | "json" | "xml" | "yaml" | "yml" | "go" | "php" | "java" | "rb" | "swfit" => "Código",
-            "psd" | "ai" | "eps" | "sketch" | "fig" | "xd" | "indd" | "cdr" => "Design/Vetores",
-            "ttf" | "otf" | "woff" | "woff2" | "eot" => "Fontes",
-            "sqlite" | "db" | "sql" | "mdb" | "accdb" | "dbf" => "Bancos de Dados",
-            "epub" | "mobi" | "azw3" | "djvu" | "cbz" | "cbr" => "E-books",
-            "obj" | "stl" | "fbx" | "blend" | "3ds" | "ma" | "mb" | "gltf" | "glb" => "modelos 3D",
-            "cfg" | "ini" | "env" | "conf" | "toml" | "prop" => "Configurações",
-            "xls" | "xlsx" | "csv" | "ods" | "numbers" => "Planilhas",
-            "ppt" | "pptx" | "key" | "odp" => "Apresentações",
-            _ => "Outros",
+            "jpg" | "jpeg" | "png" | "gif" | "webp" | "bmp" | "svg" | "ico" | "tiff" | "heic" | "avif" | "raw" | "cr2" | "nef" | "arw" | "dng" => "Images",
+            "mp4" | "mkv" | "avi" | "mov" | "webm" | "wmv" | "flv" | "m4v" | "3gp" | "mpg" | "mpeg" => "Videos",
+            "pdf" | "doc" | "docx" | "txt" | "md" | "rtf" | "odt" | "log" | "pages" | "nfo" | "rst" => "Documents/Logs",
+            "mp3" | "wav" | "flac" | "ogg" | "m4a" | "aac" | "wma" | "mid" | "midi" | "opus" | "aiff" => "Audio",
+            "zip" | "rar" | "7z" | "tar" | "gz" | "bz2" | "xz" | "tgz" | "tbz2" => "Compressed Files",
+            "exe" | "msi" | "app" | "deb" | "rpm" | "bin" | "sh" | "bat" | "cmd" | "appimage" | "flatpakref" | "snap" | "pkg" | "dmg" | "run" => "Software",
+            "py" | "js" | "ts" | "jsx" | "tsx" | "rs" | "cpp" | "c" | "h" | "hpp" | "java" | "go" | "php" | "ruby" | "rb" | "swift" | "kt" | "scala" | "lua" | "pl" | "bash" | "zsh" | "fish" | "ps1" => "Code",
+            "html" | "htm" | "css" | "scss" | "sass" | "less" => "Web",
+            "json" | "yaml" | "yml" | "xml" | "toml" | "ini" | "conf" | "cfg" | "env" => "Data",
+            "psd" | "xcf" | "fig" | "xd" | "kra" | "ai" | "eps" | "sketch" | "indd" | "cdr" => "Design/Vectors",
+            "ttf" | "otf" | "woff" | "woff2" | "eot" | "fon" => "Fonts",
+            "sqlite" | "sqlite3" | "db" | "sql" | "mdb" | "accdb" | "dbf" => "Databases",
+            "epub" | "mobi" | "azw" | "azw3" | "fb2" | "djvu" | "cbr" | "cbz" => "E-books",
+            "obj" | "stl" | "fbx" | "dae" | "gltf" | "glb" | "3ds" | "blend" | "ma" | "mb" => "3D Models",
+            "iso" | "img" | "vhd" | "vmdk" | "qcow2" => "Disk Images",
+            "xls" | "xlsx" | "csv" | "ods" | "numbers" => "Spreadsheets",
+            "ppt" | "pptx" | "odp" => "Presentations",
+            "srt" | "vtt" | "sub" | "ass" | "ssa" | "idx" => "Subtitles",
+            "pem" | "crt" | "cer" | "key" | "p12" | "pfx" | "jks" => "Certificates",
+            "dic" | "aff" | "dict" => "Dictionaries",
+            "torrent" | "magnet" => "Torrents",
+            "bak" | "backup" | "old" | "orig" => "Backups",
+            "part" | "crdownload" | "download" | "partial" | "tmp" => "Incomplete Downloads",
+            "strm" | "m3u" | "m3u8" | "pls" | "xspf" | "asx" => "Streaming/Playlists",
+            _ => "Others",
         }
     }
 
@@ -499,6 +590,8 @@ async fn get_directory_stats(directory: String) -> Result<StorageStats, String> 
             let size = entry.metadata().map(|m| m.len()).unwrap_or(0);
             let ext = entry.path().extension().map(|e| e.to_string_lossy().to_string()).unwrap_or_default();
             let cat = get_category(&ext).to_string();
+            let modified_time = entry.metadata().ok()
+                .and_then(|m| m.modified().ok());
 
             total_size += size;
             total_files += 1;
@@ -507,27 +600,37 @@ async fn get_directory_stats(directory: String) -> Result<StorageStats, String> 
             entry_stat.0 += 1;
             entry_stat.1 += size;
 
+            let modified = modified_time
+                .map(|t| {
+                    let datetime: chrono::DateTime<chrono::Local> = t.into();
+                    datetime.format("%d/%m/%Y").to_string()
+                }).unwrap_or_else(|| "-".to_string());
+
             // Only track largest files
             if all_files.len() < 100 || size > all_files.last().map(|f: &FileItem| f.size_bytes).unwrap_or(0) {
-                 let modified = entry.metadata().ok()
-                    .and_then(|m| m.modified().ok())
-                    .map(|t| {
-                        let datetime: chrono::DateTime<chrono::Local> = t.into();
-                        datetime.format("%d/%m/%Y").to_string()
-                    }).unwrap_or_else(|| "-".to_string());
-
                 all_files.push(FileItem {
                     index: 0,
-                    filename,
+                    filename: filename.clone(),
                     filepath: entry.path().to_string_lossy().to_string(),
                     is_dir: false,
                     size_bytes: size,
-                    modified,
-                    extension: ext,
+                    modified: modified.clone(),
+                    extension: ext.clone(),
                 });
                 all_files.sort_by_key(|f| std::cmp::Reverse(f.size_bytes));
                 all_files.truncate(15);
             }
+
+            // Track recent files by modification time
+            all_recent_files.push(FileItem {
+                index: 0,
+                filename,
+                filepath: entry.path().to_string_lossy().to_string(),
+                is_dir: false,
+                size_bytes: size,
+                modified,
+                extension: ext,
+            });
         }
     }
 
@@ -540,11 +643,16 @@ async fn get_directory_stats(directory: String) -> Result<StorageStats, String> 
     }).collect::<Vec<_>>();
     categories.sort_by_key(|c| std::cmp::Reverse(c.size_bytes));
 
+    // Sort recent files by modification time (most recent first)
+    all_recent_files.sort_by(|a, b| b.modified.cmp(&a.modified));
+    all_recent_files.truncate(15);
+
     Ok(StorageStats {
         total_size,
         total_files,
         categories,
         largest_files: all_files,
+        recent_files: all_recent_files,
     })
 }
 
@@ -561,22 +669,31 @@ async fn get_files_by_category(directory: String, category: String) -> Result<Ve
 
     fn get_category(ext: &str) -> &'static str {
         match ext.to_lowercase().as_str() {
-            "jpg" | "jpeg" | "png" | "gif" | "webp" | "bmp" | "svg" | "ico" | "tiff" | "heic" | "avif" => "Imagens",
-            "mp4" | "mkv" | "avi" | "mov" | "webm" | "wmv" | "flv" | "m4v" | "3gp" => "Vídeos",
-            "pdf" | "doc" | "docx" | "txt" | "md" | "rtf" | "odt" | "log" | "pages" => "Documentos/Logs",
-            "mp3" | "wav" | "flac" | "ogg" | "m4a" | "aac" | "wma" | "mid" => "Áudio",
-            "zip" | "rar" | "7z" | "tar" | "gz" | "bz2" | "xz" | "iso" | "dmg" => "Arquivos Compactados",
-            "exe" | "msi" | "app" | "deb" | "rpm" | "bin" | "sh" | "bat" => "Instaladores/Executáveis",
-            "py" | "js" | "ts" | "rs" | "cpp" | "c" | "h" | "html" | "css" | "json" | "xml" | "yaml" | "yml" | "go" | "php" | "java" | "rb" | "swfit" => "Código",
-            "psd" | "ai" | "eps" | "sketch" | "fig" | "xd" | "indd" | "cdr" => "Design/Vetores",
-            "ttf" | "otf" | "woff" | "woff2" | "eot" => "Fontes",
-            "sqlite" | "db" | "sql" | "mdb" | "accdb" | "dbf" => "Bancos de Dados",
-            "epub" | "mobi" | "azw3" | "djvu" | "cbz" | "cbr" => "E-books",
-            "obj" | "stl" | "fbx" | "blend" | "3ds" | "ma" | "mb" | "gltf" | "glb" => "modelos 3D",
-            "cfg" | "ini" | "env" | "conf" | "toml" | "prop" => "Configurações",
-            "xls" | "xlsx" | "csv" | "ods" | "numbers" => "Planilhas",
-            "ppt" | "pptx" | "key" | "odp" => "Apresentações",
-            _ => "Outros",
+            "jpg" | "jpeg" | "png" | "gif" | "webp" | "bmp" | "svg" | "ico" | "tiff" | "heic" | "avif" | "raw" | "cr2" | "nef" | "arw" | "dng" => "Images",
+            "mp4" | "mkv" | "avi" | "mov" | "webm" | "wmv" | "flv" | "m4v" | "3gp" | "mpg" | "mpeg" => "Videos",
+            "pdf" | "doc" | "docx" | "txt" | "md" | "rtf" | "odt" | "log" | "pages" | "nfo" | "rst" => "Documents/Logs",
+            "mp3" | "wav" | "flac" | "ogg" | "m4a" | "aac" | "wma" | "mid" | "midi" | "opus" | "aiff" => "Audio",
+            "zip" | "rar" | "7z" | "tar" | "gz" | "bz2" | "xz" | "tgz" | "tbz2" => "Compressed Files",
+            "exe" | "msi" | "app" | "deb" | "rpm" | "bin" | "sh" | "bat" | "cmd" | "appimage" | "flatpakref" | "snap" | "pkg" | "dmg" | "run" => "Software",
+            "py" | "js" | "ts" | "jsx" | "tsx" | "rs" | "cpp" | "c" | "h" | "hpp" | "java" | "go" | "php" | "ruby" | "rb" | "swift" | "kt" | "scala" | "lua" | "pl" | "bash" | "zsh" | "fish" | "ps1" => "Code",
+            "html" | "htm" | "css" | "scss" | "sass" | "less" => "Web",
+            "json" | "yaml" | "yml" | "xml" | "toml" | "ini" | "conf" | "cfg" | "env" => "Data",
+            "psd" | "xcf" | "fig" | "xd" | "kra" | "ai" | "eps" | "sketch" | "indd" | "cdr" => "Design/Vectors",
+            "ttf" | "otf" | "woff" | "woff2" | "eot" | "fon" => "Fonts",
+            "sqlite" | "sqlite3" | "db" | "sql" | "mdb" | "accdb" | "dbf" => "Databases",
+            "epub" | "mobi" | "azw" | "azw3" | "fb2" | "djvu" | "cbr" | "cbz" => "E-books",
+            "obj" | "stl" | "fbx" | "dae" | "gltf" | "glb" | "3ds" | "blend" | "ma" | "mb" => "3D Models",
+            "iso" | "img" | "vhd" | "vmdk" | "qcow2" => "Disk Images",
+            "xls" | "xlsx" | "csv" | "ods" | "numbers" => "Spreadsheets",
+            "ppt" | "pptx" | "odp" => "Presentations",
+            "srt" | "vtt" | "sub" | "ass" | "ssa" | "idx" => "Subtitles",
+            "pem" | "crt" | "cer" | "key" | "p12" | "pfx" | "jks" => "Certificates",
+            "dic" | "aff" | "dict" => "Dictionaries",
+            "torrent" | "magnet" => "Torrents",
+            "bak" | "backup" | "old" | "orig" => "Backups",
+            "part" | "crdownload" | "download" | "partial" | "tmp" => "Incomplete Downloads",
+            "strm" | "m3u" | "m3u8" | "pls" | "xspf" | "asx" => "Streaming/Playlists",
+            _ => "Others",
         }
     }
 
@@ -627,6 +744,8 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             list_directory,
             list_folders,
@@ -640,6 +759,8 @@ pub fn run() {
             get_directory_stats,
             search_semantic,
             get_files_by_category,
+            show_in_folder,
+            open_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

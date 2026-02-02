@@ -44,41 +44,61 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Imagens: "bg-pink-500",
-  Vídeos: "bg-emerald-500",
-  Áudio: "bg-purple-500",
+  Images: "bg-pink-500",
+  Videos: "bg-emerald-500",
+  Audio: "bg-purple-500",
   Software: "bg-blue-500",
-  Código: "bg-orange-500",
-  "Documentos/Logs": "bg-indigo-500",
-  Outros: "bg-slate-500",
-  "Arquivos Compactados": "bg-yellow-500",
-  "Design/Vetores": "bg-fuchsia-500",
-  Fontes: "bg-lime-500",
-  "Bancos de Dados": "bg-cyan-500",
+  Code: "bg-orange-500",
+  "Documents/Logs": "bg-indigo-500",
+  Others: "bg-slate-500",
+  "Compressed Files": "bg-yellow-500",
+  "Design/Vectors": "bg-fuchsia-500",
+  Fonts: "bg-lime-500",
+  Databases: "bg-cyan-500",
   "E-books": "bg-amber-700",
-  "modelos 3D": "bg-rose-600",
+  "3D Models": "bg-rose-600",
   Configurações: "bg-zinc-500",
-  Planilhas: "bg-green-600",
-  Apresentações: "bg-red-500",
+  Spreadsheets: "bg-green-600",
+  Presentations: "bg-red-500",
+  Web: "bg-sky-500",
+  Data: "bg-violet-500",
+  "Disk Images": "bg-stone-600",
+  Subtitles: "bg-teal-500",
+  Certificates: "bg-emerald-600",
+  Dictionaries: "bg-lime-600",
+  Torrents: "bg-orange-600",
+  Backups: "bg-gray-600",
+  "Incomplete Downloads": "bg-amber-500",
+  "Streaming/Playlists": "bg-pink-600",
 };
 
 const CATEGORY_ICONS: Record<string, any> = {
-  Imagens: ImageIcon,
-  Vídeos: Video,
-  Áudio: Music,
+  Images: ImageIcon,
+  Videos: Video,
+  Audio: Music,
   Software: FileBox,
-  Código: Code,
-  "Documentos/Logs": FileText,
-  Outros: Files,
-  "Arquivos Compactados": Archive,
-  "Design/Vetores": Box,
-  Fontes: Library,
-  "Bancos de Dados": Database,
+  Code: Code,
+  "Documents/Logs": FileText,
+  Others: Files,
+  "Compressed Files": Archive,
+  "Design/Vectors": Box,
+  Fonts: Library,
+  Databases: Database,
   "E-books": Book,
-  "modelos 3D": Box,
+  "3D Models": Box,
   Configurações: Settings,
-  Planilhas: Table,
-  Apresentações: Presentation,
+  Spreadsheets: Table,
+  Presentations: Presentation,
+  Web: HardDrive,
+  Data: FileText,
+  "Disk Images": Archive,
+  Subtitles: FileText,
+  Certificates: FileText,
+  Dictionaries: Book,
+  Torrents: FileText,
+  Backups: Archive,
+  "Incomplete Downloads": Files,
+  "Streaming/Playlists": Music,
 };
 
 function formatBytes(bytes: number, decimals = 1) {
@@ -246,7 +266,7 @@ function DashboardComponent() {
         />
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <main className="flex-1 flex overflow-hidden gap-8">
+          <main className="flex-1 flex overflow-hidden gap-6">
             <ScrollArea className="flex-1 ">
               <div className="pb-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ">
@@ -344,7 +364,7 @@ function DashboardComponent() {
                   </div>
                   <div className="rounded-md border shadow-xl overflow-hidden">
                     <FileBrowserTable
-                      files={stats?.largest_files || []}
+                      files={stats?.recent_files || []}
                       onOpenFolder={handleSelectFolder}
                     />
                   </div>
@@ -352,7 +372,7 @@ function DashboardComponent() {
               </div>
             </ScrollArea>
 
-            <div className="w-96 h-full flex flex-col border-l">
+            <div className="w-80 h-full flex flex-col border-l shrink-0">
               <div className="p-8 flex flex-col items-center relative overflow-hidden">
                 <h1 className="text-lg font-black mb-8 self-start">
                   {t("common.storage")}

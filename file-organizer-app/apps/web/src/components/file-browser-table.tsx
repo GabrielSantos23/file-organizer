@@ -266,7 +266,7 @@ export function FileBrowserTable({
 
   return (
     <div className="flex-1 overflow-auto bg-background">
-      <div className="min-w-[800px]">
+      <div className="min-w-[600px]">
         <div className="sticky top-0 bg-card border-b border-border z-10 shadow-sm flex items-center text-sm font-medium text-muted-foreground">
           <div className="p-2 pl-4 flex-1">
             <button
@@ -310,7 +310,7 @@ export function FileBrowserTable({
                     <div className="flex items-center gap-2">
                       {getFileIcon(file)}
                       <span
-                        className={`truncate max-w-[400px] ${file.is_dir ? "font-medium" : ""}`}
+                        className={`truncate ${file.is_dir ? "font-medium" : ""}`}
                       >
                         {file.filename}
                       </span>

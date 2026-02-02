@@ -456,51 +456,116 @@ def search(
     sys.stdout = sys.stderr
     
     try:
-        target_dir = Path(directory).resolve()
+        # Prepare query terms (support OR logic via pipe |)
+        query_terms = [q.strip().lower() for q in query.split('|') if q.strip()]
         
-        scanner = FileScanner(use_ocr=False)
+        # Use recursive scan for search to find files in subfolders
+        # Disable hashing and metadata extraction for search speed
+        scanner = FileScanner(recursive=True, use_ocr=False, calculate_hash=False, fast_mode=True)
         scan_result = scanner.scan(target_dir)
-        images = scan_result.images
+        all_files = scan_result.all_files
         
-        if not images:
+        print(f"[UI_PROGRESS] Varredura completa. {len(all_files)} arquivos encontrados.", file=sys.stderr)
+        
+        if not all_files:
             print(json.dumps([]), file=original_stdout)
             sys.exit(0)
             
-        inference = ClipInference()
-        query_embedding = inference.encode_text(query)
-        q_vec = np.array(query_embedding)
-        
         results = []
+        inference = None
+        q_vec = None
         
-        for idx, img in enumerate(images):
-            img_emb = inference.get_image_embedding(img.path)
-            if not img_emb: continue
-            
-            i_vec = np.array(img_emb)
-            # Cosine similarity
-            similarity = np.dot(q_vec, i_vec) / (np.linalg.norm(q_vec) * np.linalg.norm(i_vec))
-            
-            if similarity > 0.15:
+        # 1. First pass: Text-based matching on filenames (Very Fast)
+        print("[UI_PROGRESS] Filtrando por nome e metadados...", file=sys.stderr)
+        for idx, file_info in enumerate(all_files):
+            # Filename match (highest priority) uses OR logic for terms
+            name_lower = file_info.name.lower()
+            if any(term in name_lower for term in query_terms):
                 results.append({
                     "index": idx,
-                    "filename": img.name,
-                    "filepath": str(img.path),
-                    "suggested_folder": "Busca",
+                    "filename": file_info.name,
+                    "filepath": str(file_info.path),
+                    "suggested_folder": "Busca (Nome)",
                     "suggested_name": None,
-                    "confidence": float(similarity),
+                    "confidence": 0.95, 
+                    "selected": True,
+                    "is_duplicate": False,
+                    "duplicate_of": None
+                })
+                continue
+            
+            # Metadata match (title, author, tags)
+            meta_str = str(file_info.metadata).lower()
+            if any(term in meta_str for term in query_terms):
+                results.append({
+                    "index": idx,
+                    "filename": file_info.name,
+                    "filepath": str(file_info.path),
+                    "suggested_folder": "Busca (Metadados)",
+                    "suggested_name": None,
+                    "confidence": 0.8,
                     "selected": True,
                     "is_duplicate": False,
                     "duplicate_of": None
                 })
         
+        # 2. Second pass: CLIP Semantic search for images (Slower)
+        # Only perform CLIP search if we have few results or if user specifies
+        images = [f for f in scan_result.images if not any(r["filepath"] == str(f.path) for r in results)]
+        
+        # Only calculate embedding for the FIRST term if multiple (approximation) or join them?
+        primary_query = query_terms[0] if query_terms else ""
+        
+        if images and primary_query and (len(results) < 10 or len(query.split()) > 2):
+            try:
+                print(f"[UI_PROGRESS] Analisando visualmente {min(len(images), 100)} imagens...", file=sys.stderr)
+                if not inference:
+                    inference = ClipInference()
+                    query_embedding = inference.encode_text(primary_query) 
+                    q_vec = np.array(query_embedding)
+                
+                # Limit CLIP search to top 100 images to avoid freezing if directory is huge
+                # In a real app, we would use a vector database
+                for idx, img in enumerate(images[:100]):
+                    img_emb = inference.get_image_embedding(img.path)
+                    if not img_emb: continue
+                    
+                    i_vec = np.array(img_emb)
+                    similarity = np.dot(q_vec, i_vec) / (np.linalg.norm(q_vec) * np.linalg.norm(i_vec))
+                    
+                    if similarity > 0.22: # Tighter threshold for better quality
+                        results.append({
+                            "index": 1000 + idx,
+                            "filename": img.name,
+                            "filepath": str(img.path),
+                            "suggested_folder": "Busca (IA)",
+                            "suggested_name": None,
+                            "confidence": float(similarity),
+                            "selected": True,
+                            "is_duplicate": False,
+                            "duplicate_of": None
+                        })
+            except Exception as e:
+                print(f"CLIP Semantic Search failed: {e}", file=sys.stderr)
+
+        # Sort by confidence and return top 50
+        print("[UI_PROGRESS] Finalizando resultados...", file=sys.stderr)
         results.sort(key=lambda x: x["confidence"], reverse=True)
-        print(json.dumps(results[:50]), file=original_stdout)
+        
+        # Remove duplicates by path (just in case)
+        seen_paths = set()
+        final_results = []
+        for r in results:
+            if r["filepath"] not in seen_paths:
+                final_results.append(r)
+                seen_paths.add(r["filepath"])
+        
+        print(json.dumps(final_results[:50]), file=original_stdout)
         
     except Exception as e:
         import traceback
-        # Print error to stderr for logs
-        print(f"Search Error: {e}")
-        # Return empty list or error JSON to stdout so UI doesn't crash
+        print(f"Search Error: {e}", file=sys.stderr)
+        print(traceback.format_exc(), file=sys.stderr)
         print(json.dumps([]), file=original_stdout) 
         sys.exit(1)
 

@@ -77,4 +77,5 @@ export interface StorageStats {
   total_files: number;
   categories: CategoryStat[];
   largest_files: FileItem[];
+  recent_files: FileItem[];
 }

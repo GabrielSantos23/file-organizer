@@ -26,7 +26,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useTranslation } from "react-i18next";
-import { getVersion } from "@tauri-apps/api/app";
 
 interface ToolbarProps {
   currentPath: string;
@@ -74,35 +73,43 @@ export function Toolbar({
     notes: string;
   } | null>(null);
 
+  const [update, setUpdate] = useState<any | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
   useEffect(() => {
     const checkUpdate = async () => {
       try {
-        const currentVersion = await getVersion();
-        const response = await fetch(
-          `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`,
-        );
+        const { check } = await import("@tauri-apps/plugin-updater");
+        const update = await check();
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data.tag_name) {
-            const latestVersion = data.tag_name.replace(/^v/, "");
-
-            if (latestVersion !== currentVersion) {
-              setUpdateInfo({
-                version: latestVersion,
-                notes: data.body || "No release notes available.",
-              });
-            }
-          }
+        if (update?.available) {
+          setUpdate(update);
+          setUpdateInfo({
+            version: update.version,
+            notes: update.body || "Release notes not available.",
+          });
         }
       } catch (error) {
-        // Silent failure in dev/browser is expected if Tauri API is missing
         console.debug("Update check skipped or failed:", error);
       }
     };
 
     checkUpdate();
   }, []);
+
+  const handleUpdate = async () => {
+    if (!update) return;
+
+    setIsUpdating(true);
+    try {
+      await update.downloadAndInstall();
+      const { relaunch } = await import("@tauri-apps/plugin-process");
+      await relaunch();
+    } catch (error) {
+      console.error("Failed to install update:", error);
+      setIsUpdating(false);
+    }
+  };
 
   const { t } = useTranslation();
 
@@ -303,18 +310,22 @@ export function Toolbar({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowUpdate(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowUpdate(false)}
+              disabled={isUpdating}
+            >
               Later
             </Button>
-            <Button
-              onClick={() =>
-                window.open(
-                  `https://github.com/${GITHUB_REPO}/releases/tag/v${updateInfo?.version}`,
-                  "_blank",
-                )
-              }
-            >
-              Download Update
+            <Button onClick={handleUpdate} disabled={isUpdating}>
+              {isUpdating ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Installing...
+                </>
+              ) : (
+                "Download & Install"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
