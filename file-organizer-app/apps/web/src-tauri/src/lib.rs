@@ -624,12 +624,12 @@ use tauri::Manager;
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
-            #[cfg(debug_assertions)] // Open devtools by default only in dev
+            #[cfg(debug_assertions)]
             {
                 let window = app.get_webview_window("main").unwrap();
                 window.open_devtools();
             }
-            #[cfg(not(debug_assertions))] // FORCE devtools in release for debugging this issue
+            #[cfg(not(debug_assertions))]
             {
                  let window = app.get_webview_window("main").unwrap();
                  window.open_devtools();
