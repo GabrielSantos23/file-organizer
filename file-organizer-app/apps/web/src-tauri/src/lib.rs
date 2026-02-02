@@ -618,27 +618,12 @@ async fn get_files_by_category(directory: String, category: String) -> Result<Ve
     Ok(filtered_files)
 }
 
-use tauri::Manager;
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // FIX: Disable WebKit compositing to prevent blank screen on Linux/NVIDIA
     std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
 
     tauri::Builder::default()
-        .setup(|app| {
-            #[cfg(debug_assertions)]
-            {
-                let window = app.get_webview_window("main").unwrap();
-                window.open_devtools();
-            }
-            #[cfg(not(debug_assertions))]
-            {
-                 let window = app.get_webview_window("main").unwrap();
-                 window.open_devtools();
-            }
-            Ok(())
-        })
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
