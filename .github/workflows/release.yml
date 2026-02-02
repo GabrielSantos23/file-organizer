@@ -54,22 +54,38 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install -r requirements.txt
-          # Force reinstall of CPU-only versions of PyTorch to reduce bundle size (< 2GB limit)
+          # First install CPU-only torch to avoid pulling in CUDA meta-packages
           pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
           pip install pyinstaller
 
       - name: Build Sidecar (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
-          pyinstaller --clean --onefile --name file-organizer-engine engine.py
+          pyinstaller --clean --onefile --name file-organizer-engine \
+            --exclude-module nvidia.cuda_nvrtc \
+            --exclude-module nvidia.cuda_runtime \
+            --exclude-module nvidia.cuda_cupti \
+            --exclude-module nvidia.cudnn \
+            --exclude-module nvidia.cublas \
+            --exclude-module nvidia.cufft \
+            --exclude-module nvidia.curand \
+            --exclude-module nvidia.cusolver \
+            --exclude-module nvidia.cusparse \
+            --exclude-module nvidia.nccl \
+            --exclude-module nvidia.nvtx \
+            --exclude-module nvidia.nvjitlink \
+            --exclude-module nvidia.cufile \
+            engine.py
           mkdir -p file-organizer-app/apps/web/src-tauri/bin
           mv dist/file-organizer-engine file-organizer-app/apps/web/src-tauri/bin/file-organizer-engine-x86_64-unknown-linux-gnu
 
       - name: Build Sidecar (Windows)
         if: matrix.platform == 'windows-latest'
         run: |
-          pyinstaller --clean --onefile --name file-organizer-engine engine.py
+          pyinstaller --clean --onefile --name file-organizer-engine \
+            --exclude-module nvidia \
+            engine.py
           mkdir -p file-organizer-app/apps/web/src-tauri/bin
           mv dist/file-organizer-engine.exe file-organizer-app/apps/web/src-tauri/bin/file-organizer-engine-x86_64-pc-windows-msvc.exe
 
