@@ -82,6 +82,7 @@ jobs:
 
       - name: Build Sidecar (Windows)
         if: matrix.platform == 'windows-latest'
+        shell: bash
         run: |
           pyinstaller --clean --onefile --name file-organizer-engine \
             --exclude-module nvidia \
