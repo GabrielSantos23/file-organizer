@@ -6,6 +6,9 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   base: process.env.NODE_ENV === "production" ? "./" : "/",
+  build: {
+    minify: false,
+  },
   plugins: [tailwindcss(), tanstackRouter({}), react()],
   resolve: {
     alias: {
