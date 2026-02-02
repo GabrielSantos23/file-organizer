@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04, windows-latest]
+        platform: [ubuntu-22.04, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +23,7 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies (Ubuntu)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.0-dev \
@@ -36,8 +36,8 @@ jobs:
             libayatana-appindicator3-dev \
             librsvg2-dev \
             libsoup-3.0-dev \
-            libjavascriptcoregtk-4.1-dev \
-            libwebkit2gtk-4.1-dev
+            libjavascriptcoregtk-4.0-dev
+            # Note: Explicitly using 4.0 (legacy) webkit/javascriptcore
 
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
@@ -60,7 +60,7 @@ jobs:
           pip install pyinstaller
 
       - name: Build Sidecar (Linux)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           pyinstaller --clean --onefile --name file-organizer-engine \
             --exclude-module nvidia.cuda_nvrtc \
